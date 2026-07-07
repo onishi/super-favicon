@@ -6,16 +6,19 @@ export interface PaletteColor {
 
 export const OFF_COLOR = '#000000'
 
-export const PALETTE: PaletteColor[] = [
-  { value: 1, color: '#ffffff', label: '白' },
-  { value: 2, color: '#ff0000', label: '赤' },
-  { value: 3, color: '#00ff00', label: '緑' },
-  { value: 4, color: '#0000ff', label: '青' },
-  { value: 5, color: '#ffff00', label: '黄' },
-  { value: 6, color: '#00ffff', label: 'シアン' },
-  { value: 7, color: '#ff00ff', label: 'マゼンタ' },
-]
+const LEVELS = [0, 85, 170, 255]
+const LEVEL_COUNT = LEVELS.length
 
 export function colorForValue(value: number): string {
-  return PALETTE.find((entry) => entry.value === value)?.color ?? OFF_COLOR
+  const r = Math.floor(value / (LEVEL_COUNT * LEVEL_COUNT)) % LEVEL_COUNT
+  const g = Math.floor(value / LEVEL_COUNT) % LEVEL_COUNT
+  const b = value % LEVEL_COUNT
+  return `rgb(${LEVELS[r]}, ${LEVELS[g]}, ${LEVELS[b]})`
 }
+
+export const PALETTE: PaletteColor[] = Array.from({ length: LEVEL_COUNT ** 3 }, (_, value) => {
+  const r = Math.floor(value / (LEVEL_COUNT * LEVEL_COUNT)) % LEVEL_COUNT
+  const g = Math.floor(value / LEVEL_COUNT) % LEVEL_COUNT
+  const b = value % LEVEL_COUNT
+  return { value, color: colorForValue(value), label: `R${r}G${g}B${b}` }
+})

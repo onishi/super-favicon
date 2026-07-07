@@ -15,12 +15,12 @@ export function setEditorFlagInLocation(isOpen: boolean): void {
   window.history.pushState({}, '', url)
 }
 
-export function getPixelsHexFromLocation(): string | null {
+export function getPixelsCodeFromLocation(): string | null {
   return new URLSearchParams(window.location.search).get(PIXELS_PARAM)
 }
 
-export function setPixelsHexInLocation(hex: string): void {
+export function setPixelsCodeInLocation(code: string): void {
   const url = new URL(window.location.href)
-  url.searchParams.set(PIXELS_PARAM, hex)
+  url.searchParams.set(PIXELS_PARAM, code)
   window.history.replaceState({}, '', url)
 }

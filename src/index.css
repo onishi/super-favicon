@@ -139,20 +139,29 @@ button {
   font-size: 18px;
 }
 
-.pixel-editor__palette {
+.pixel-editor__workspace {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
-  margin: 16px auto 0;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 0 auto;
+}
+
+.pixel-editor__palette {
+  display: grid;
+  grid-template-columns: repeat(8, 28px);
+  grid-template-rows: repeat(8, 28px);
+  gap: 2px;
 }
 
 .pixel-editor__swatch {
-  width: 36px;
-  height: 36px;
-  min-height: 36px;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  min-height: 28px;
   padding: 0;
-  border-radius: 6px;
+  border-radius: 3px;
   border: 1px solid var(--border);
 }
 
@@ -164,7 +173,7 @@ button {
   margin: 16px auto 0;
 }
 
-.pixel-editor__hex {
+.pixel-editor__code {
   display: block;
   max-width: 480px;
   margin: 8px auto 24px;

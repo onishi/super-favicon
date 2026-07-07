@@ -3,7 +3,7 @@ import { GameMenu } from './components/GameMenu'
 import { GameView } from './components/GameView'
 import { PixelEditorView } from './components/PixelEditorView'
 import { GAMES, getGameById } from './games/registry'
-import { getEditorFlagFromLocation, setEditorFlagInLocation, setPixelsHexInLocation } from './lib/editor-url'
+import { getEditorFlagFromLocation, setEditorFlagInLocation, setPixelsCodeInLocation } from './lib/editor-url'
 import { getGameIdFromLocation, setGameIdInLocation } from './lib/game-url'
 
 function App() {
@@ -33,8 +33,8 @@ function App() {
     setIsEditorOpen(true)
   }, [])
 
-  const startLifeGameFromEditor = useCallback((pixelsHex: string) => {
-    setPixelsHexInLocation(pixelsHex)
+  const startLifeGameFromEditor = useCallback((pixelsCode: string) => {
+    setPixelsCodeInLocation(pixelsCode)
     setEditorFlagInLocation(false)
     setGameIdInLocation('life')
     setIsEditorOpen(false)

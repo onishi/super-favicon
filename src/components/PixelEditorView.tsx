@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { getPixelsHexFromLocation, setPixelsHexInLocation } from '../lib/editor-url'
+import { getPixelsCodeFromLocation, setPixelsCodeInLocation } from '../lib/editor-url'
 import { colorForValue, OFF_COLOR, PALETTE } from '../lib/palette'
 import {
   GRID_SIZE,
@@ -9,14 +9,14 @@ import {
   setPixel,
   type PixelBuffer,
 } from '../lib/pixel-buffer'
-import { hexToPixelBuffer, pixelBufferToHex } from '../lib/pixel-hex'
+import { codeToPixelBuffer, pixelBufferToCode } from '../lib/pixel-code'
 
 const DISPLAY_SCALE = 8
-const DEFAULT_VALUE = PALETTE[0].value
+const DEFAULT_VALUE = PALETTE[PALETTE.length - 1].value
 
 interface PixelEditorViewProps {
   onExit: () => void
-  onStartLifeGame: (pixelsHex: string) => void
+  onStartLifeGame: (pixelsCode: string) => void
 }
 
 function getCellFromPointer(event: ReactPointerEvent<HTMLCanvasElement>, canvas: HTMLCanvasElement) {
@@ -55,11 +55,11 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
   const [selectedValue, setSelectedValue] = useState(DEFAULT_VALUE)
 
   if (!bufferRef.current) {
-    const initialHex = getPixelsHexFromLocation()
-    bufferRef.current = initialHex ? hexToPixelBuffer(initialHex) : createPixelBuffer()
+    const initialCode = getPixelsCodeFromLocation()
+    bufferRef.current = initialCode ? codeToPixelBuffer(initialCode) : createPixelBuffer()
   }
 
-  const [hex, setHex] = useState(() => pixelBufferToHex(bufferRef.current as PixelBuffer))
+  const [code, setCode] = useState(() => pixelBufferToCode(bufferRef.current as PixelBuffer))
 
   const redraw = useCallback(() => {
     if (canvasRef.current && bufferRef.current) {
@@ -72,9 +72,9 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
   }, [redraw])
 
   const commitChange = useCallback(() => {
-    const nextHex = pixelBufferToHex(bufferRef.current as PixelBuffer)
-    setHex(nextHex)
-    setPixelsHexInLocation(nextHex)
+    const nextCode = pixelBufferToCode(bufferRef.current as PixelBuffer)
+    setCode(nextCode)
+    setPixelsCodeInLocation(nextCode)
   }, [])
 
   const paintAt = useCallback(
@@ -122,48 +122,50 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
         ← メニューに戻る
       </button>
       <h2>ドット絵エディタ</h2>
-      <canvas
-        ref={canvasRef}
-        width={GRID_SIZE}
-        height={GRID_SIZE}
-        style={{
-          width: GRID_SIZE * DISPLAY_SCALE,
-          height: GRID_SIZE * DISPLAY_SCALE,
-          imageRendering: 'pixelated',
-          border: '1px solid #ccc',
-          touchAction: 'none',
-        }}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerUp}
-      />
-      <div className="pixel-editor__palette">
-        {PALETTE.map((entry) => (
-          <button
-            key={entry.value}
-            type="button"
-            aria-label={entry.label}
-            aria-pressed={selectedValue === entry.value}
-            className="pixel-editor__swatch"
-            style={{
-              backgroundColor: entry.color,
-              outline: selectedValue === entry.value ? '3px solid var(--accent)' : undefined,
-            }}
-            onClick={() => setSelectedValue(entry.value)}
-          />
-        ))}
+      <div className="pixel-editor__workspace">
+        <canvas
+          ref={canvasRef}
+          width={GRID_SIZE}
+          height={GRID_SIZE}
+          style={{
+            width: GRID_SIZE * DISPLAY_SCALE,
+            height: GRID_SIZE * DISPLAY_SCALE,
+            imageRendering: 'pixelated',
+            border: '1px solid #ccc',
+            touchAction: 'none',
+          }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerLeave={handlePointerUp}
+        />
+        <div className="pixel-editor__palette">
+          {PALETTE.map((entry) => (
+            <button
+              key={entry.value}
+              type="button"
+              aria-label={entry.label}
+              aria-pressed={selectedValue === entry.value}
+              className="pixel-editor__swatch"
+              style={{
+                backgroundColor: entry.color,
+                outline: selectedValue === entry.value ? '3px solid var(--accent)' : undefined,
+              }}
+              onClick={() => setSelectedValue(entry.value)}
+            />
+          ))}
+        </div>
       </div>
       <div className="pixel-editor__actions">
         <button type="button" onClick={handleClear}>
           クリア
         </button>
-        <button type="button" onClick={() => onStartLifeGame(hex)}>
+        <button type="button" onClick={() => onStartLifeGame(code)}>
           この配置でライフゲームを開始
         </button>
       </div>
       <p>この配置のURL（共有・復元用、現在のアドレスバーにも反映されています）</p>
-      <code className="pixel-editor__hex">{hex}</code>
+      <code className="pixel-editor__code">{code}</code>
     </div>
   )
 }
