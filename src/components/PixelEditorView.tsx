@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { getPixelsCodeFromLocation, setPixelsCodeInLocation } from '../lib/editor-url'
-import { colorForValue, OFF_COLOR, PALETTE } from '../lib/palette'
+import { colorForValue, OFF_COLOR, PALETTE, renderPaletteBufferToCanvas } from '../lib/palette'
 import {
   GRID_SIZE,
   clearPixelBuffer,
@@ -55,32 +55,19 @@ function getCellFromPointer(event: ReactPointerEvent<HTMLCanvasElement>, canvas:
   return { x, y }
 }
 
-function renderPaletteBuffer(buffer: PixelBuffer, canvas: HTMLCanvasElement, preview: RectPreview | null): void {
-  canvas.width = GRID_SIZE
-  canvas.height = GRID_SIZE
+function renderEditorCanvas(buffer: PixelBuffer, canvas: HTMLCanvasElement, preview: RectPreview | null): void {
+  renderPaletteBufferToCanvas(buffer, canvas)
+  if (!preview) return
+
   const ctx = canvas.getContext('2d')
   if (!ctx) return
 
-  ctx.fillStyle = OFF_COLOR
-  ctx.fillRect(0, 0, GRID_SIZE, GRID_SIZE)
-  for (let y = 0; y < GRID_SIZE; y++) {
-    for (let x = 0; x < GRID_SIZE; x++) {
-      const value = buffer[y * GRID_SIZE + x]
-      if (value !== 0) {
-        ctx.fillStyle = colorForValue(value)
-        ctx.fillRect(x, y, 1, 1)
-      }
-    }
-  }
-
-  if (preview) {
-    const minX = Math.min(preview.x0, preview.x1)
-    const maxX = Math.max(preview.x0, preview.x1)
-    const minY = Math.min(preview.y0, preview.y1)
-    const maxY = Math.max(preview.y0, preview.y1)
-    ctx.fillStyle = preview.value === 0 ? OFF_COLOR : colorForValue(preview.value)
-    ctx.fillRect(minX, minY, maxX - minX + 1, maxY - minY + 1)
-  }
+  const minX = Math.min(preview.x0, preview.x1)
+  const maxX = Math.max(preview.x0, preview.x1)
+  const minY = Math.min(preview.y0, preview.y1)
+  const maxY = Math.max(preview.y0, preview.y1)
+  ctx.fillStyle = preview.value === 0 ? OFF_COLOR : colorForValue(preview.value)
+  ctx.fillRect(minX, minY, maxX - minX + 1, maxY - minY + 1)
 }
 
 export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProps) {
@@ -105,7 +92,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
 
   const redraw = useCallback(() => {
     if (canvasRef.current && bufferRef.current) {
-      renderPaletteBuffer(bufferRef.current, canvasRef.current, rectPreviewRef.current)
+      renderEditorCanvas(bufferRef.current, canvasRef.current, rectPreviewRef.current)
     }
   }, [])
 
@@ -244,20 +231,6 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
       </button>
       <h2>ドット絵エディタ</h2>
       <p>Shift + クリックでスポイト（カーソル位置の色をパレットから選択）</p>
-      <div className="pixel-editor__tools">
-        {TOOLS.map((entry) => (
-          <button
-            key={entry.id}
-            type="button"
-            aria-pressed={tool === entry.id}
-            className="pixel-editor__tool"
-            style={{ outline: tool === entry.id ? '3px solid var(--accent)' : undefined }}
-            onClick={() => setTool(entry.id)}
-          >
-            {entry.label}
-          </button>
-        ))}
-      </div>
       <div className="pixel-editor__workspace">
         <canvas
           ref={canvasRef}
@@ -266,6 +239,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
           style={{
             width: GRID_SIZE * DISPLAY_SCALE,
             height: GRID_SIZE * DISPLAY_SCALE,
+            boxSizing: 'border-box',
             imageRendering: 'pixelated',
             border: '1px solid #ccc',
             touchAction: 'none',
@@ -275,7 +249,10 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerLeave}
         />
-        <div className="pixel-editor__palette">
+        <div
+          className="pixel-editor__palette"
+          style={{ width: GRID_SIZE * DISPLAY_SCALE, height: GRID_SIZE * DISPLAY_SCALE }}
+        >
           {PALETTE.map((entry) => (
             <button
               key={entry.value}
@@ -292,6 +269,20 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
             />
           ))}
         </div>
+      </div>
+      <div className="pixel-editor__tools">
+        {TOOLS.map((entry) => (
+          <button
+            key={entry.id}
+            type="button"
+            aria-pressed={tool === entry.id}
+            className="pixel-editor__tool"
+            style={{ outline: tool === entry.id ? '3px solid var(--accent)' : undefined }}
+            onClick={() => setTool(entry.id)}
+          >
+            {entry.label}
+          </button>
+        ))}
       </div>
       <div className="pixel-editor__actions">
         <button type="button" onClick={handleUndo} disabled={!canUndo}>
