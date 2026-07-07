@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { getPixelsHexFromLocation, setPixelsHexInLocation } from '../lib/editor-url'
-import { renderPixelBufferToCanvas } from '../lib/favicon-renderer'
+import { colorForValue, OFF_COLOR, PALETTE } from '../lib/palette'
 import {
   GRID_SIZE,
   clearPixelBuffer,
@@ -12,6 +12,7 @@ import {
 import { hexToPixelBuffer, pixelBufferToHex } from '../lib/pixel-hex'
 
 const DISPLAY_SCALE = 8
+const DEFAULT_VALUE = PALETTE[0].value
 
 interface PixelEditorViewProps {
   onExit: () => void
@@ -27,11 +28,31 @@ function getCellFromPointer(event: ReactPointerEvent<HTMLCanvasElement>, canvas:
   return { x, y }
 }
 
+function renderPaletteBuffer(buffer: PixelBuffer, canvas: HTMLCanvasElement): void {
+  canvas.width = GRID_SIZE
+  canvas.height = GRID_SIZE
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+
+  ctx.fillStyle = OFF_COLOR
+  ctx.fillRect(0, 0, GRID_SIZE, GRID_SIZE)
+  for (let y = 0; y < GRID_SIZE; y++) {
+    for (let x = 0; x < GRID_SIZE; x++) {
+      const value = buffer[y * GRID_SIZE + x]
+      if (value !== 0) {
+        ctx.fillStyle = colorForValue(value)
+        ctx.fillRect(x, y, 1, 1)
+      }
+    }
+  }
+}
+
 export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const bufferRef = useRef<PixelBuffer | null>(null)
   const isDrawingRef = useRef(false)
-  const paintValueRef = useRef(1)
+  const paintValueRef = useRef(DEFAULT_VALUE)
+  const [selectedValue, setSelectedValue] = useState(DEFAULT_VALUE)
 
   if (!bufferRef.current) {
     const initialHex = getPixelsHexFromLocation()
@@ -42,10 +63,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
 
   const redraw = useCallback(() => {
     if (canvasRef.current && bufferRef.current) {
-      renderPixelBufferToCanvas(bufferRef.current, canvasRef.current, {
-        onColor: '#ffffff',
-        offColor: '#000000',
-      })
+      renderPaletteBuffer(bufferRef.current, canvasRef.current)
     }
   }, [])
 
@@ -72,7 +90,8 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
     const canvas = canvasRef.current
     if (!canvas) return
     const { x, y } = getCellFromPointer(event, canvas)
-    paintValueRef.current = getPixel(bufferRef.current as PixelBuffer, x, y) ? 0 : 1
+    const currentValue = getPixel(bufferRef.current as PixelBuffer, x, y)
+    paintValueRef.current = currentValue === selectedValue ? 0 : selectedValue
     isDrawingRef.current = true
     paintAt(x, y)
   }
@@ -119,6 +138,22 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
       />
+      <div className="pixel-editor__palette">
+        {PALETTE.map((entry) => (
+          <button
+            key={entry.value}
+            type="button"
+            aria-label={entry.label}
+            aria-pressed={selectedValue === entry.value}
+            className="pixel-editor__swatch"
+            style={{
+              backgroundColor: entry.color,
+              outline: selectedValue === entry.value ? '3px solid var(--accent)' : undefined,
+            }}
+            onClick={() => setSelectedValue(entry.value)}
+          />
+        ))}
+      </div>
       <div className="pixel-editor__actions">
         <button type="button" onClick={handleClear}>
           クリア
