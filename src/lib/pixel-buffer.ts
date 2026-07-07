@@ -1,5 +1,12 @@
 export const GRID_SIZE = 32
 
+export const CHARACTER_SIZE = 2
+export const LOGICAL_GRID_SIZE = GRID_SIZE / CHARACTER_SIZE
+
+export const OFF = 0
+export const ON = 1
+export const ACCENT = 2
+
 export type PixelBuffer = Uint8Array
 
 export function createPixelBuffer(): PixelBuffer {
@@ -24,4 +31,14 @@ export function setPixel(buffer: PixelBuffer, x: number, y: number, value: numbe
 
 export function clearPixelBuffer(buffer: PixelBuffer): void {
   buffer.fill(0)
+}
+
+export function setCharacter(buffer: PixelBuffer, logicalX: number, logicalY: number, value: number): void {
+  const baseX = logicalX * CHARACTER_SIZE
+  const baseY = logicalY * CHARACTER_SIZE
+  for (let dy = 0; dy < CHARACTER_SIZE; dy++) {
+    for (let dx = 0; dx < CHARACTER_SIZE; dx++) {
+      setPixel(buffer, baseX + dx, baseY + dy, value)
+    }
+  }
 }

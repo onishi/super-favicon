@@ -1,4 +1,4 @@
-import { GRID_SIZE } from '../lib/pixel-buffer'
+import { LOGICAL_GRID_SIZE, ON, setCharacter } from '../lib/pixel-buffer'
 import { GLIDER, PULSAR, type Pattern } from './life/patterns'
 import { createGrid, placePattern, step } from './life/rules'
 import type { GameDefinition } from './types'
@@ -7,8 +7,8 @@ const STEP_INTERVAL = 3
 
 function randomPattern(fillRatio = 0.3): Pattern {
   const cells: Pattern = []
-  for (let y = 0; y < GRID_SIZE; y++) {
-    for (let x = 0; x < GRID_SIZE; x++) {
+  for (let y = 0; y < LOGICAL_GRID_SIZE; y++) {
+    for (let x = 0; x < LOGICAL_GRID_SIZE; x++) {
       if (Math.random() < fillRatio) cells.push([x, y])
     }
   }
@@ -23,8 +23,8 @@ interface Preset {
 }
 
 const PRESETS: Preset[] = [
-  { name: 'グライダー', pattern: () => GLIDER, offsetX: 4, offsetY: 4 },
-  { name: 'パルサー', pattern: () => PULSAR, offsetX: 9, offsetY: 9 },
+  { name: 'グライダー', pattern: () => GLIDER, offsetX: 2, offsetY: 2 },
+  { name: 'パルサー', pattern: () => PULSAR, offsetX: 1, offsetY: 1 },
   { name: 'ランダム', pattern: () => randomPattern(), offsetX: 0, offsetY: 0 },
 ]
 
@@ -61,7 +61,11 @@ export const lifeGame: GameDefinition = {
         }
       },
       render: (buffer) => {
-        buffer.set(grid)
+        for (let y = 0; y < LOGICAL_GRID_SIZE; y++) {
+          for (let x = 0; x < LOGICAL_GRID_SIZE; x++) {
+            if (grid[y * LOGICAL_GRID_SIZE + x]) setCharacter(buffer, x, y, ON)
+          }
+        }
       },
     }
   },

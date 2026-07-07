@@ -1,14 +1,15 @@
-import { GRID_SIZE, type PixelBuffer } from './pixel-buffer'
+import { ACCENT, GRID_SIZE, ON, type PixelBuffer } from './pixel-buffer'
 
 export interface FaviconRendererOptions {
   onColor?: string
   offColor?: string | null
+  accentColor?: string
 }
 
 export function renderPixelBufferToCanvas(
   buffer: PixelBuffer,
   canvas: HTMLCanvasElement,
-  { onColor = '#000000', offColor = null }: FaviconRendererOptions = {},
+  { onColor = '#ffffff', offColor = '#000000', accentColor = '#00ff00' }: FaviconRendererOptions = {},
 ): void {
   canvas.width = GRID_SIZE
   canvas.height = GRID_SIZE
@@ -20,10 +21,14 @@ export function renderPixelBufferToCanvas(
     ctx.fillStyle = offColor
     ctx.fillRect(0, 0, GRID_SIZE, GRID_SIZE)
   }
-  ctx.fillStyle = onColor
   for (let y = 0; y < GRID_SIZE; y++) {
     for (let x = 0; x < GRID_SIZE; x++) {
-      if (buffer[y * GRID_SIZE + x]) {
+      const value = buffer[y * GRID_SIZE + x]
+      if (value === ACCENT) {
+        ctx.fillStyle = accentColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === ON) {
+        ctx.fillStyle = onColor
         ctx.fillRect(x, y, 1, 1)
       }
     }
