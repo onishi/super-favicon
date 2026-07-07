@@ -8,7 +8,7 @@ export interface FaviconRendererOptions {
 export function renderPixelBufferToCanvas(
   buffer: PixelBuffer,
   canvas: HTMLCanvasElement,
-  { onColor = '#000000', offColor = null }: FaviconRendererOptions = {},
+  { onColor = '#ffffff', offColor = '#000000' }: FaviconRendererOptions = {},
 ): void {
   canvas.width = GRID_SIZE
   canvas.height = GRID_SIZE

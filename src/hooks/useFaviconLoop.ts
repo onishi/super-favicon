@@ -15,7 +15,7 @@ export function useFaviconLoop(
   getBuffer: () => PixelBuffer,
   options: UseFaviconLoopOptions = {},
 ): void {
-  const { fps = 8, onColor = '#000000', offColor = null, previewCanvasRef } = options
+  const { fps = 8, onColor = '#ffffff', offColor = '#000000', previewCanvasRef } = options
   const faviconCanvasRef = useRef<HTMLCanvasElement | null>(null)
 
   useEffect(() => {
