@@ -2,8 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { GameMenu } from './components/GameMenu'
 import { GameView } from './components/GameView'
 import { PixelEditorView } from './components/PixelEditorView'
+import { TitleFavicon } from './components/TitleFavicon'
 import { GAMES, getGameById } from './games/registry'
-import { getEditorFlagFromLocation, setEditorFlagInLocation, setPixelsHexInLocation } from './lib/editor-url'
+import { getEditorFlagFromLocation, setEditorFlagInLocation, setPixelsCodeInLocation } from './lib/editor-url'
 import { getGameIdFromLocation, setGameIdInLocation } from './lib/game-url'
 
 function App() {
@@ -33,8 +34,8 @@ function App() {
     setIsEditorOpen(true)
   }, [])
 
-  const startLifeGameFromEditor = useCallback((pixelsHex: string) => {
-    setPixelsHexInLocation(pixelsHex)
+  const startLifeGameFromEditor = useCallback((pixelsCode: string) => {
+    setPixelsCodeInLocation(pixelsCode)
     setEditorFlagInLocation(false)
     setGameIdInLocation('life')
     setIsEditorOpen(false)
@@ -52,6 +53,7 @@ function App() {
         <PixelEditorView onExit={() => selectGame(null)} onStartLifeGame={startLifeGameFromEditor} />
       ) : (
         <>
+          <TitleFavicon />
           <GameMenu games={GAMES} onSelect={selectGame} />
           <button type="button" onClick={openEditor}>
             ドット絵エディタ

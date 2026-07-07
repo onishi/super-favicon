@@ -1,6 +1,6 @@
-import { getPixelsHexFromLocation } from '../lib/editor-url'
+import { getPixelsCodeFromLocation } from '../lib/editor-url'
 import { CHARACTER_SIZE, GRID_SIZE, LOGICAL_GRID_SIZE, ON, setCharacter, type PixelBuffer } from '../lib/pixel-buffer'
-import { hexToPixelBuffer } from '../lib/pixel-hex'
+import { codeToPixelBuffer } from '../lib/pixel-code'
 import { GLIDER, PULSAR, type Pattern } from './life/patterns'
 import { createGrid, placePattern, step } from './life/rules'
 import type { GameDefinition } from './types'
@@ -52,11 +52,11 @@ export const lifeGame: GameDefinition = {
   id: 'life',
   name: 'ライフゲーム',
   create: () => {
-    const initialHex = getPixelsHexFromLocation()
-    const hasCustomPattern = initialHex !== null
+    const initialCode = getPixelsCodeFromLocation()
+    const hasCustomPattern = initialCode !== null
 
     let presetIndex = hasCustomPattern ? -1 : 0
-    let grid = hasCustomPattern ? downsampleToLogicalGrid(hexToPixelBuffer(initialHex)) : createGrid()
+    let grid = hasCustomPattern ? downsampleToLogicalGrid(codeToPixelBuffer(initialCode)) : createGrid()
     let frameCount = 0
     let confirmWasPressed = false
 

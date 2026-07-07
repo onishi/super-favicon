@@ -42,3 +42,36 @@ export function setCharacter(buffer: PixelBuffer, logicalX: number, logicalY: nu
     }
   }
 }
+
+export function fillRect(
+  buffer: PixelBuffer,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  value: number,
+): void {
+  const minX = Math.min(x0, x1)
+  const maxX = Math.max(x0, x1)
+  const minY = Math.min(y0, y1)
+  const maxY = Math.max(y0, y1)
+  for (let y = minY; y <= maxY; y++) {
+    for (let x = minX; x <= maxX; x++) {
+      setPixel(buffer, x, y, value)
+    }
+  }
+}
+
+export function floodFill(buffer: PixelBuffer, startX: number, startY: number, value: number): void {
+  const targetValue = getPixel(buffer, startX, startY)
+  if (targetValue === value) return
+
+  const stack: Array<[number, number]> = [[startX, startY]]
+  while (stack.length > 0) {
+    const [x, y] = stack.pop() as [number, number]
+    if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) continue
+    if (buffer[y * GRID_SIZE + x] !== targetValue) continue
+    buffer[y * GRID_SIZE + x] = value
+    stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1])
+  }
+}
