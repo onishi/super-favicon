@@ -5,6 +5,8 @@ import {
   GRID_SIZE,
   clearPixelBuffer,
   createPixelBuffer,
+  fillRect,
+  floodFill,
   getPixel,
   setPixel,
   type PixelBuffer,
@@ -13,6 +15,22 @@ import { codeToPixelBuffer, pixelBufferToCode } from '../lib/pixel-code'
 
 const DISPLAY_SCALE = 8
 const DEFAULT_VALUE = PALETTE[PALETTE.length - 1].value
+
+type Tool = 'pen' | 'rect' | 'fill'
+
+const TOOLS: { id: Tool; label: string }[] = [
+  { id: 'pen', label: 'ペン' },
+  { id: 'rect', label: '矩形' },
+  { id: 'fill', label: '塗りつぶし' },
+]
+
+interface RectPreview {
+  x0: number
+  y0: number
+  x1: number
+  y1: number
+  value: number
+}
 
 interface PixelEditorViewProps {
   onExit: () => void
@@ -28,7 +46,7 @@ function getCellFromPointer(event: ReactPointerEvent<HTMLCanvasElement>, canvas:
   return { x, y }
 }
 
-function renderPaletteBuffer(buffer: PixelBuffer, canvas: HTMLCanvasElement): void {
+function renderPaletteBuffer(buffer: PixelBuffer, canvas: HTMLCanvasElement, preview: RectPreview | null): void {
   canvas.width = GRID_SIZE
   canvas.height = GRID_SIZE
   const ctx = canvas.getContext('2d')
@@ -45,6 +63,15 @@ function renderPaletteBuffer(buffer: PixelBuffer, canvas: HTMLCanvasElement): vo
       }
     }
   }
+
+  if (preview) {
+    const minX = Math.min(preview.x0, preview.x1)
+    const maxX = Math.max(preview.x0, preview.x1)
+    const minY = Math.min(preview.y0, preview.y1)
+    const maxY = Math.max(preview.y0, preview.y1)
+    ctx.fillStyle = preview.value === 0 ? OFF_COLOR : colorForValue(preview.value)
+    ctx.fillRect(minX, minY, maxX - minX + 1, maxY - minY + 1)
+  }
 }
 
 export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProps) {
@@ -52,7 +79,10 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
   const bufferRef = useRef<PixelBuffer | null>(null)
   const isDrawingRef = useRef(false)
   const paintValueRef = useRef(DEFAULT_VALUE)
+  const rectPreviewRef = useRef<RectPreview | null>(null)
   const [selectedValue, setSelectedValue] = useState(DEFAULT_VALUE)
+  const [hoverValue, setHoverValue] = useState<number | null>(null)
+  const [tool, setTool] = useState<Tool>('pen')
 
   if (!bufferRef.current) {
     const initialCode = getPixelsCodeFromLocation()
@@ -63,7 +93,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
 
   const redraw = useCallback(() => {
     if (canvasRef.current && bufferRef.current) {
-      renderPaletteBuffer(bufferRef.current, canvasRef.current)
+      renderPaletteBuffer(bufferRef.current, canvasRef.current, rectPreviewRef.current)
     }
   }, [])
 
@@ -91,23 +121,67 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
     if (!canvas) return
     const { x, y } = getCellFromPointer(event, canvas)
     const currentValue = getPixel(bufferRef.current as PixelBuffer, x, y)
-    paintValueRef.current = currentValue === selectedValue ? 0 : selectedValue
+
+    if (event.shiftKey) {
+      setSelectedValue(currentValue)
+      return
+    }
+
+    const paintValue = currentValue === selectedValue ? 0 : selectedValue
+
+    if (tool === 'fill') {
+      floodFill(bufferRef.current as PixelBuffer, x, y, paintValue)
+      redraw()
+      commitChange()
+      return
+    }
+
+    if (tool === 'rect') {
+      rectPreviewRef.current = { x0: x, y0: y, x1: x, y1: y, value: paintValue }
+      isDrawingRef.current = true
+      redraw()
+      return
+    }
+
+    paintValueRef.current = paintValue
     isDrawingRef.current = true
     paintAt(x, y)
   }
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLCanvasElement>) => {
-    if (!isDrawingRef.current) return
     const canvas = canvasRef.current
     if (!canvas) return
     const { x, y } = getCellFromPointer(event, canvas)
-    paintAt(x, y)
+    setHoverValue(getPixel(bufferRef.current as PixelBuffer, x, y))
+
+    if (!isDrawingRef.current) return
+
+    if (tool === 'rect' && rectPreviewRef.current) {
+      rectPreviewRef.current = { ...rectPreviewRef.current, x1: x, y1: y }
+      redraw()
+      return
+    }
+
+    if (tool === 'pen') paintAt(x, y)
   }
 
   const handlePointerUp = () => {
     if (!isDrawingRef.current) return
     isDrawingRef.current = false
+
+    if (tool === 'rect' && rectPreviewRef.current) {
+      const { x0, y0, x1, y1, value } = rectPreviewRef.current
+      fillRect(bufferRef.current as PixelBuffer, x0, y0, x1, y1, value)
+      rectPreviewRef.current = null
+      redraw()
+    }
+
     commitChange()
+  }
+
+  const handlePointerLeave = () => {
+    setHoverValue(null)
+    handlePointerUp()
   }
 
   const handleClear = () => {
@@ -122,6 +196,21 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
         ← メニューに戻る
       </button>
       <h2>ドット絵エディタ</h2>
+      <p>Shift + クリックでスポイト（カーソル位置の色をパレットから選択）</p>
+      <div className="pixel-editor__tools">
+        {TOOLS.map((entry) => (
+          <button
+            key={entry.id}
+            type="button"
+            aria-pressed={tool === entry.id}
+            className="pixel-editor__tool"
+            style={{ outline: tool === entry.id ? '3px solid var(--accent)' : undefined }}
+            onClick={() => setTool(entry.id)}
+          >
+            {entry.label}
+          </button>
+        ))}
+      </div>
       <div className="pixel-editor__workspace">
         <canvas
           ref={canvasRef}
@@ -137,7 +226,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
+          onPointerLeave={handlePointerLeave}
         />
         <div className="pixel-editor__palette">
           {PALETTE.map((entry) => (
@@ -150,6 +239,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
               style={{
                 backgroundColor: entry.color,
                 outline: selectedValue === entry.value ? '3px solid var(--accent)' : undefined,
+                boxShadow: hoverValue === entry.value ? '0 0 0 2px var(--text-h)' : undefined,
               }}
               onClick={() => setSelectedValue(entry.value)}
             />

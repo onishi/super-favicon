@@ -139,6 +139,14 @@ button {
   font-size: 18px;
 }
 
+.pixel-editor__tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px auto 0;
+}
+
 .pixel-editor__workspace {
   display: flex;
   flex-wrap: wrap;
