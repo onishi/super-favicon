@@ -109,3 +109,32 @@ code {
   padding: 4px 8px;
   background: var(--code-bg);
 }
+
+button {
+  box-sizing: border-box;
+  font: inherit;
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-h);
+  cursor: pointer;
+}
+
+.game-menu {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  margin: 24px auto;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.game-menu button {
+  width: 100%;
+  font-size: 18px;
+}
