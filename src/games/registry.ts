@@ -1,8 +1,7 @@
-import { blinkDemoGame } from './blink-demo'
-import { moveDemoGame } from './move-demo'
+import { lifeGame } from './life'
 import type { GameDefinition } from './types'
 
-export const GAMES: GameDefinition[] = [moveDemoGame, blinkDemoGame]
+export const GAMES: GameDefinition[] = [lifeGame]
 
 export function getGameById(id: string): GameDefinition | undefined {
   return GAMES.find((game) => game.id === id)
