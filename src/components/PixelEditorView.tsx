@@ -15,6 +15,7 @@ import { codeToPixelBuffer, pixelBufferToCode } from '../lib/pixel-code'
 
 const DISPLAY_SCALE = 8
 const DEFAULT_VALUE = PALETTE[PALETTE.length - 1].value
+const MAX_HISTORY = 50
 
 type Tool = 'pen' | 'rect' | 'fill'
 
@@ -35,6 +36,14 @@ interface RectPreview {
 interface PixelEditorViewProps {
   onExit: () => void
   onStartLifeGame: (pixelsCode: string) => void
+}
+
+function chunkCode(code: string, lineLength: number): string {
+  const lines: string[] = []
+  for (let i = 0; i < code.length; i += lineLength) {
+    lines.push(code.slice(i, i + lineLength))
+  }
+  return lines.join('\n')
 }
 
 function getCellFromPointer(event: ReactPointerEvent<HTMLCanvasElement>, canvas: HTMLCanvasElement) {
@@ -80,9 +89,12 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
   const isDrawingRef = useRef(false)
   const paintValueRef = useRef(DEFAULT_VALUE)
   const rectPreviewRef = useRef<RectPreview | null>(null)
+  const undoStackRef = useRef<PixelBuffer[]>([])
+  const redoStackRef = useRef<PixelBuffer[]>([])
   const [selectedValue, setSelectedValue] = useState(DEFAULT_VALUE)
   const [hoverValue, setHoverValue] = useState<number | null>(null)
   const [tool, setTool] = useState<Tool>('pen')
+  const [, forceHistoryRerender] = useState(0)
 
   if (!bufferRef.current) {
     const initialCode = getPixelsCodeFromLocation()
@@ -107,6 +119,34 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
     setPixelsCodeInLocation(nextCode)
   }, [])
 
+  const pushHistory = useCallback(() => {
+    const snapshot = (bufferRef.current as PixelBuffer).slice() as PixelBuffer
+    undoStackRef.current.push(snapshot)
+    if (undoStackRef.current.length > MAX_HISTORY) undoStackRef.current.shift()
+    redoStackRef.current = []
+    forceHistoryRerender((v) => v + 1)
+  }, [])
+
+  const handleUndo = useCallback(() => {
+    const previous = undoStackRef.current.pop()
+    if (!previous) return
+    redoStackRef.current.push((bufferRef.current as PixelBuffer).slice() as PixelBuffer)
+    bufferRef.current = previous
+    redraw()
+    commitChange()
+    forceHistoryRerender((v) => v + 1)
+  }, [redraw, commitChange])
+
+  const handleRedo = useCallback(() => {
+    const next = redoStackRef.current.pop()
+    if (!next) return
+    undoStackRef.current.push((bufferRef.current as PixelBuffer).slice() as PixelBuffer)
+    bufferRef.current = next
+    redraw()
+    commitChange()
+    forceHistoryRerender((v) => v + 1)
+  }, [redraw, commitChange])
+
   const paintAt = useCallback(
     (x: number, y: number) => {
       setPixel(bufferRef.current as PixelBuffer, x, y, paintValueRef.current)
@@ -130,6 +170,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
     const paintValue = currentValue === selectedValue ? 0 : selectedValue
 
     if (tool === 'fill') {
+      pushHistory()
       floodFill(bufferRef.current as PixelBuffer, x, y, paintValue)
       redraw()
       commitChange()
@@ -137,12 +178,14 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
     }
 
     if (tool === 'rect') {
+      pushHistory()
       rectPreviewRef.current = { x0: x, y0: y, x1: x, y1: y, value: paintValue }
       isDrawingRef.current = true
       redraw()
       return
     }
 
+    pushHistory()
     paintValueRef.current = paintValue
     isDrawingRef.current = true
     paintAt(x, y)
@@ -185,10 +228,14 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
   }
 
   const handleClear = () => {
+    pushHistory()
     clearPixelBuffer(bufferRef.current as PixelBuffer)
     redraw()
     commitChange()
   }
+
+  const canUndo = undoStackRef.current.length > 0
+  const canRedo = redoStackRef.current.length > 0
 
   return (
     <div>
@@ -247,6 +294,12 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
         </div>
       </div>
       <div className="pixel-editor__actions">
+        <button type="button" onClick={handleUndo} disabled={!canUndo}>
+          元に戻す
+        </button>
+        <button type="button" onClick={handleRedo} disabled={!canRedo}>
+          やり直す
+        </button>
         <button type="button" onClick={handleClear}>
           クリア
         </button>
@@ -255,7 +308,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
         </button>
       </div>
       <p>この配置のURL（共有・復元用、現在のアドレスバーにも反映されています）</p>
-      <code className="pixel-editor__code">{code}</code>
+      <code className="pixel-editor__code">{chunkCode(code, GRID_SIZE)}</code>
     </div>
   )
 }
