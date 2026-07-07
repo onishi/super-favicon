@@ -15,7 +15,13 @@ export function useFaviconLoop(
   getBuffer: () => PixelBuffer,
   options: UseFaviconLoopOptions = {},
 ): void {
-  const { fps = 8, onColor = '#ffffff', offColor = '#000000', previewCanvasRef } = options
+  const {
+    fps = 8,
+    onColor = '#ffffff',
+    offColor = '#000000',
+    accentColor = '#00ff00',
+    previewCanvasRef,
+  } = options
   const faviconCanvasRef = useRef<HTMLCanvasElement | null>(null)
 
   useEffect(() => {
@@ -33,15 +39,15 @@ export function useFaviconLoop(
       lastTime = time
 
       const buffer = getBuffer()
-      renderPixelBufferToCanvas(buffer, faviconCanvas, { onColor, offColor })
+      renderPixelBufferToCanvas(buffer, faviconCanvas, { onColor, offColor, accentColor })
       updateFaviconLink(faviconCanvas)
 
       if (previewCanvasRef?.current) {
-        renderPixelBufferToCanvas(buffer, previewCanvasRef.current, { onColor, offColor })
+        renderPixelBufferToCanvas(buffer, previewCanvasRef.current, { onColor, offColor, accentColor })
       }
     }
     rafId = requestAnimationFrame(tick)
 
     return () => cancelAnimationFrame(rafId)
-  }, [getBuffer, fps, onColor, offColor, previewCanvasRef])
+  }, [getBuffer, fps, onColor, offColor, accentColor, previewCanvasRef])
 }

@@ -3,6 +3,10 @@ export const GRID_SIZE = 32
 export const CHARACTER_SIZE = 2
 export const LOGICAL_GRID_SIZE = GRID_SIZE / CHARACTER_SIZE
 
+export const OFF = 0
+export const ON = 1
+export const ACCENT = 2
+
 export type PixelBuffer = Uint8Array
 
 export function createPixelBuffer(): PixelBuffer {

@@ -1,4 +1,4 @@
-import { GRID_SIZE, LOGICAL_GRID_SIZE, setCharacter, setPixel } from '../lib/pixel-buffer'
+import { ACCENT, GRID_SIZE, LOGICAL_GRID_SIZE, ON, setCharacter, setPixel } from '../lib/pixel-buffer'
 import type { GameDefinition } from './types'
 
 const STEP_INTERVAL = 4
@@ -117,15 +117,15 @@ export const snakeGame: GameDefinition = {
         }
       },
       render: (buffer) => {
-        for (const segment of snake) setCharacter(buffer, segment.x, segment.y, 1)
-        setCharacter(buffer, food.x, food.y, 1)
+        for (const segment of snake) setCharacter(buffer, segment.x, segment.y, ON)
+        setCharacter(buffer, food.x, food.y, ACCENT)
 
         if (isGameOver && Math.floor(blinkCounter / 4) % 2 === 0) {
           for (let i = 0; i < GRID_SIZE; i++) {
-            setPixel(buffer, i, 0, 1)
-            setPixel(buffer, i, GRID_SIZE - 1, 1)
-            setPixel(buffer, 0, i, 1)
-            setPixel(buffer, GRID_SIZE - 1, i, 1)
+            setPixel(buffer, i, 0, ON)
+            setPixel(buffer, i, GRID_SIZE - 1, ON)
+            setPixel(buffer, 0, i, ON)
+            setPixel(buffer, GRID_SIZE - 1, i, ON)
           }
         }
       },

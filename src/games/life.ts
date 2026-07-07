@@ -1,4 +1,4 @@
-import { LOGICAL_GRID_SIZE, setCharacter } from '../lib/pixel-buffer'
+import { LOGICAL_GRID_SIZE, ON, setCharacter } from '../lib/pixel-buffer'
 import { GLIDER, PULSAR, type Pattern } from './life/patterns'
 import { createGrid, placePattern, step } from './life/rules'
 import type { GameDefinition } from './types'
@@ -63,7 +63,7 @@ export const lifeGame: GameDefinition = {
       render: (buffer) => {
         for (let y = 0; y < LOGICAL_GRID_SIZE; y++) {
           for (let x = 0; x < LOGICAL_GRID_SIZE; x++) {
-            if (grid[y * LOGICAL_GRID_SIZE + x]) setCharacter(buffer, x, y, 1)
+            if (grid[y * LOGICAL_GRID_SIZE + x]) setCharacter(buffer, x, y, ON)
           }
         }
       },
