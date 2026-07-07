@@ -1,4 +1,4 @@
-import { GRID_SIZE, setPixel } from '../lib/pixel-buffer'
+import { GRID_SIZE, LOGICAL_GRID_SIZE, setCharacter, setPixel } from '../lib/pixel-buffer'
 import type { GameDefinition } from './types'
 
 const STEP_INTERVAL = 4
@@ -30,7 +30,10 @@ const ALL_DIRECTIONS: Direction[] = ['up', 'down', 'left', 'right']
 function randomEmptyCell(occupied: Set<string>): Vec {
   let cell: Vec
   do {
-    cell = { x: Math.floor(Math.random() * GRID_SIZE), y: Math.floor(Math.random() * GRID_SIZE) }
+    cell = {
+      x: Math.floor(Math.random() * LOGICAL_GRID_SIZE),
+      y: Math.floor(Math.random() * LOGICAL_GRID_SIZE),
+    }
   } while (occupied.has(`${cell.x},${cell.y}`))
   return cell
 }
@@ -49,8 +52,8 @@ export const snakeGame: GameDefinition = {
     let confirmWasPressed = false
 
     const reset = () => {
-      const startX = Math.floor(GRID_SIZE / 2)
-      const startY = Math.floor(GRID_SIZE / 2)
+      const startX = Math.floor(LOGICAL_GRID_SIZE / 2)
+      const startY = Math.floor(LOGICAL_GRID_SIZE / 2)
       snake = Array.from({ length: INITIAL_LENGTH }, (_, i) => ({ x: startX - i, y: startY }))
       direction = 'right'
       pendingDirection = 'right'
@@ -89,7 +92,12 @@ export const snakeGame: GameDefinition = {
         const vector = DIRECTION_VECTORS[direction]
         const newHead = { x: head.x + vector.x, y: head.y + vector.y }
 
-        if (newHead.x < 0 || newHead.x >= GRID_SIZE || newHead.y < 0 || newHead.y >= GRID_SIZE) {
+        if (
+          newHead.x < 0 ||
+          newHead.x >= LOGICAL_GRID_SIZE ||
+          newHead.y < 0 ||
+          newHead.y >= LOGICAL_GRID_SIZE
+        ) {
           isGameOver = true
           return
         }
@@ -109,8 +117,8 @@ export const snakeGame: GameDefinition = {
         }
       },
       render: (buffer) => {
-        for (const segment of snake) setPixel(buffer, segment.x, segment.y, 1)
-        setPixel(buffer, food.x, food.y, 1)
+        for (const segment of snake) setCharacter(buffer, segment.x, segment.y, 1)
+        setCharacter(buffer, food.x, food.y, 1)
 
         if (isGameOver && Math.floor(blinkCounter / 4) % 2 === 0) {
           for (let i = 0; i < GRID_SIZE; i++) {
