@@ -1,4 +1,6 @@
-import { LOGICAL_GRID_SIZE, ON, setCharacter } from '../lib/pixel-buffer'
+import { getPixelsHexFromLocation } from '../lib/editor-url'
+import { CHARACTER_SIZE, GRID_SIZE, LOGICAL_GRID_SIZE, ON, setCharacter, type PixelBuffer } from '../lib/pixel-buffer'
+import { hexToPixelBuffer } from '../lib/pixel-hex'
 import { GLIDER, PULSAR, type Pattern } from './life/patterns'
 import { createGrid, placePattern, step } from './life/rules'
 import type { GameDefinition } from './types'
@@ -13,6 +15,24 @@ function randomPattern(fillRatio = 0.3): Pattern {
     }
   }
   return cells
+}
+
+function downsampleToLogicalGrid(buffer: PixelBuffer): Uint8Array {
+  const grid = createGrid()
+  for (let ly = 0; ly < LOGICAL_GRID_SIZE; ly++) {
+    for (let lx = 0; lx < LOGICAL_GRID_SIZE; lx++) {
+      let alive = 0
+      for (let dy = 0; dy < CHARACTER_SIZE; dy++) {
+        for (let dx = 0; dx < CHARACTER_SIZE; dx++) {
+          const px = lx * CHARACTER_SIZE + dx
+          const py = ly * CHARACTER_SIZE + dy
+          if (buffer[py * GRID_SIZE + px]) alive = 1
+        }
+      }
+      grid[ly * LOGICAL_GRID_SIZE + lx] = alive
+    }
+  }
+  return grid
 }
 
 interface Preset {
@@ -32,8 +52,11 @@ export const lifeGame: GameDefinition = {
   id: 'life',
   name: 'ライフゲーム',
   create: () => {
-    let presetIndex = 0
-    let grid = createGrid()
+    const initialHex = getPixelsHexFromLocation()
+    const hasCustomPattern = initialHex !== null
+
+    let presetIndex = hasCustomPattern ? -1 : 0
+    let grid = hasCustomPattern ? downsampleToLogicalGrid(hexToPixelBuffer(initialHex)) : createGrid()
     let frameCount = 0
     let confirmWasPressed = false
 
@@ -42,7 +65,7 @@ export const lifeGame: GameDefinition = {
       const preset = PRESETS[index]
       placePattern(grid, preset.pattern(), preset.offsetX, preset.offsetY)
     }
-    loadPreset(presetIndex)
+    if (!hasCustomPattern) loadPreset(presetIndex)
 
     return {
       update: (input) => {
