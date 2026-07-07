@@ -67,7 +67,8 @@ Favicon を動的に書き換えることで、Favicon の画像を 32x32 ピク
 ライフゲーム・スネークゲームの2本ができた時点で一度 Mobile 対応まで含めて公開（v1）し、残りのゲームはその後追加していく。
 
 ### Phase 0: 技術選定・環境構築
-- 使用する言語・フレームワーク・ビルドツールを決定する
+- 技術スタック: Vite + TypeScript + React、lint に oxlint を使用
+- デプロイ先: Cloudflare Pages を想定
 - リポジトリの雛形（ディレクトリ構成、lint/format、CI）を用意する
 
 ### Phase 1: Favicon 描画エンジン
