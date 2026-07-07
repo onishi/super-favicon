@@ -138,3 +138,21 @@ button {
   width: 100%;
   font-size: 18px;
 }
+
+.pixel-editor__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px auto 0;
+}
+
+.pixel-editor__hex {
+  display: block;
+  max-width: 480px;
+  margin: 8px auto 24px;
+  padding: 8px;
+  word-break: break-all;
+  white-space: pre-wrap;
+  text-align: left;
+}
