@@ -1,4 +1,4 @@
-import { useState, type PointerEvent } from 'react'
+import { useEffect, useState, type PointerEvent } from 'react'
 import type { InputState } from '../hooks/useInputState'
 import type { InputAction } from '../lib/input'
 import './TouchControls.css'
@@ -16,12 +16,16 @@ interface ControlButtonProps {
 }
 
 function ControlButton({ action, input, label, className }: ControlButtonProps) {
+  // Subscribed to the shared held state (not just this button's own pointer
+  // events) so the pad also lights up when the same action is triggered from
+  // the keyboard.
   const [isPressed, setIsPressed] = useState(false)
+
+  useEffect(() => input.subscribe(action, setIsPressed), [input, action])
 
   const handlePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
     event.preventDefault()
     input.press(action)
-    setIsPressed(true)
     // Keep receiving pointer events for this button even if the finger drifts
     // off its bounds before lifting, so release is never missed (which would
     // otherwise leave the action stuck "held"). Not all pointers support
@@ -34,7 +38,6 @@ function ControlButton({ action, input, label, className }: ControlButtonProps) 
   }
   const handlePointerUp = () => {
     input.release(action)
-    setIsPressed(false)
   }
 
   const pressedClass = isPressed ? 'touch-controls__button--pressed' : ''
