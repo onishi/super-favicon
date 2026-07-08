@@ -1,21 +1,28 @@
 .touch-controls {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 48px;
+  gap: 16px;
   margin-top: 24px;
   padding-bottom: max(16px, env(safe-area-inset-bottom));
-}
-
-@media (max-width: 400px) {
-  .touch-controls {
-    gap: 24px;
-  }
 }
 
 @media (hover: hover) and (pointer: fine) {
   .touch-controls {
     display: none;
+  }
+}
+
+.touch-controls__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+}
+
+@media (max-width: 400px) {
+  .touch-controls__row {
+    gap: 24px;
   }
 }
 
@@ -63,4 +70,12 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
+}
+
+.touch-controls__reset {
+  min-width: 96px;
+  padding: 8px 20px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  border-radius: 8px;
 }
