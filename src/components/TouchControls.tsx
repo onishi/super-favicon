@@ -1,4 +1,4 @@
-import type { PointerEvent } from 'react'
+import { useState, type PointerEvent } from 'react'
 import type { InputState } from '../hooks/useInputState'
 import type { InputAction } from '../lib/input'
 import './TouchControls.css'
@@ -11,21 +11,29 @@ interface TouchControlsProps {
 interface ControlButtonProps {
   action: InputAction
   input: InputState
-  label: string
+  label?: string
   className?: string
 }
 
 function ControlButton({ action, input, label, className }: ControlButtonProps) {
+  const [isPressed, setIsPressed] = useState(false)
+
   const handlePointerDown = (event: PointerEvent<HTMLButtonElement>) => {
     event.preventDefault()
     input.press(action)
+    setIsPressed(true)
   }
-  const handlePointerUp = () => input.release(action)
+  const handlePointerUp = () => {
+    input.release(action)
+    setIsPressed(false)
+  }
+
+  const pressedClass = isPressed ? 'touch-controls__button--pressed' : ''
 
   return (
     <button
       type="button"
-      className={`touch-controls__button ${className ?? ''}`}
+      className={`touch-controls__button ${className ?? ''} ${pressedClass}`}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       onPointerLeave={handlePointerUp}
@@ -46,7 +54,7 @@ export function TouchControls({ input, onReset }: TouchControlsProps) {
           <ControlButton action="right" input={input} label="▶" className="touch-controls__right" />
           <ControlButton action="down" input={input} label="▼" className="touch-controls__down" />
         </div>
-        <ControlButton action="confirm" input={input} label="1" className="touch-controls__confirm" />
+        <ControlButton action="confirm" input={input} className="touch-controls__confirm" />
       </div>
       <button type="button" className="touch-controls__reset" onClick={onReset}>
         RESET
