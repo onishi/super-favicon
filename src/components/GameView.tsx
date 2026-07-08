@@ -6,6 +6,8 @@ import { useInputState } from '../hooks/useInputState'
 import { FaviconPreview } from './FaviconPreview'
 import { TouchControls } from './TouchControls'
 
+const TITLE_UPDATE_INTERVAL_MS = 250
+
 interface GameViewProps {
   game: GameDefinition
   onExit: () => void
@@ -14,9 +16,18 @@ interface GameViewProps {
 export function GameView({ game, onExit }: GameViewProps) {
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
   const input = useInputState()
-  const getBuffer = useGameRuntime(game, input)
+  const { getBuffer, getScore } = useGameRuntime(game, input)
 
   useFaviconLoop(getBuffer, { fps: 12, previewCanvasRef })
+
+  useEffect(() => {
+    const updateTitle = () => {
+      document.title = `[${getScore()}] ${game.name}`
+    }
+    updateTitle()
+    const interval = setInterval(updateTitle, TITLE_UPDATE_INTERVAL_MS)
+    return () => clearInterval(interval)
+  }, [getScore, game.name])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
