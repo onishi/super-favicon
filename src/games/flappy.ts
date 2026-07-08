@@ -6,7 +6,7 @@ import {
   GROUND_ALT,
   LOGICAL_GRID_SIZE,
   ON,
-  RED,
+  ORANGE,
   setCharacter,
   setPixel,
 } from '../lib/pixel-buffer'
@@ -63,6 +63,12 @@ export const flappyGame: GameDefinition = {
     }
     reset()
 
+    const die = () => {
+      isGameOver = true
+      // Keep the bird visible where it died, even if it was off-screen above the ceiling.
+      birdY = Math.max(0, Math.min(LOGICAL_GRID_SIZE - 1, birdY))
+    }
+
     return {
       update: (input) => {
         const confirmPressed = input.isPressed('confirm')
@@ -85,7 +91,7 @@ export const flappyGame: GameDefinition = {
         birdY = Math.max(birdY, -CEILING_MARGIN)
 
         if (birdY >= DEATH_Y) {
-          isGameOver = true
+          die()
           return
         }
 
@@ -106,18 +112,12 @@ export const flappyGame: GameDefinition = {
         const roundedBirdY = Math.round(birdY)
         for (const pipe of pipes) {
           if (pipe.x === BIRD_X && (roundedBirdY < pipe.gapStart || roundedBirdY >= pipe.gapStart + GAP_SIZE)) {
-            isGameOver = true
+            die()
             return
           }
         }
       },
       render: (buffer) => {
-        const roundedBirdY = Math.round(birdY)
-        // Above the ceiling is genuinely off-screen space; don't draw the bird there.
-        if (roundedBirdY >= 0 && roundedBirdY < LOGICAL_GRID_SIZE) {
-          setCharacter(buffer, BIRD_X, roundedBirdY, RED)
-        }
-
         for (const pipe of pipes) {
           if (pipe.x < 0 || pipe.x >= LOGICAL_GRID_SIZE) continue
           for (let y = 0; y < LOGICAL_GRID_SIZE; y++) {
@@ -133,6 +133,13 @@ export const flappyGame: GameDefinition = {
           for (let y = GROUND_TOP_Y; y < GRID_SIZE; y++) {
             setPixel(buffer, x, y, stripe)
           }
+        }
+
+        // Drawn last (on top) so the bird stays visible even where it died overlapping a pipe.
+        const roundedBirdY = Math.round(birdY)
+        // Above the ceiling is genuinely off-screen space; don't draw the bird there.
+        if (roundedBirdY >= 0 && roundedBirdY < LOGICAL_GRID_SIZE) {
+          setCharacter(buffer, BIRD_X, roundedBirdY, ORANGE)
         }
 
         if (isGameOver && Math.floor(blinkCounter / 4) % 2 === 0) {

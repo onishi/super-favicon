@@ -2,12 +2,12 @@ import {
   ACCENT,
   GLOW_ACCENT,
   GLOW_ON,
-  GLOW_RED,
+  GLOW_ORANGE,
   GRID_SIZE,
   GROUND,
   GROUND_ALT,
   ON,
-  RED,
+  ORANGE,
   type PixelBuffer,
 } from './pixel-buffer'
 
@@ -15,10 +15,10 @@ export interface FaviconRendererOptions {
   onColor?: string
   offColor?: string | null
   accentColor?: string
-  redColor?: string
+  orangeColor?: string
   glowOnColor?: string
   glowAccentColor?: string
-  glowRedColor?: string
+  glowOrangeColor?: string
   groundColor?: string
   groundAltColor?: string
 }
@@ -30,10 +30,10 @@ export function renderPixelBufferToCanvas(
     onColor = '#ffffff',
     offColor = '#000000',
     accentColor = '#00ff00',
-    redColor = '#ff0000',
+    orangeColor = '#ff8c00',
     glowOnColor = '#555555',
     glowAccentColor = '#005500',
-    glowRedColor = '#550000',
+    glowOrangeColor = '#552e00',
     groundColor = '#c8a878',
     groundAltColor = '#a8845a',
   }: FaviconRendererOptions = {},
@@ -57,8 +57,8 @@ export function renderPixelBufferToCanvas(
       } else if (value === ON) {
         ctx.fillStyle = onColor
         ctx.fillRect(x, y, 1, 1)
-      } else if (value === RED) {
-        ctx.fillStyle = redColor
+      } else if (value === ORANGE) {
+        ctx.fillStyle = orangeColor
         ctx.fillRect(x, y, 1, 1)
       } else if (value === GLOW_ACCENT) {
         ctx.fillStyle = glowAccentColor
@@ -66,8 +66,8 @@ export function renderPixelBufferToCanvas(
       } else if (value === GLOW_ON) {
         ctx.fillStyle = glowOnColor
         ctx.fillRect(x, y, 1, 1)
-      } else if (value === GLOW_RED) {
-        ctx.fillStyle = glowRedColor
+      } else if (value === GLOW_ORANGE) {
+        ctx.fillStyle = glowOrangeColor
         ctx.fillRect(x, y, 1, 1)
       } else if (value === GROUND) {
         ctx.fillStyle = groundColor
