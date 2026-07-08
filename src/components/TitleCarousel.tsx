@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { GameDefinition } from '../games/types'
 import { useFaviconLoop } from '../hooks/useFaviconLoop'
 import { useInputState } from '../hooks/useInputState'
+import { renderPixelBufferToCanvas } from '../lib/favicon-renderer'
+import { renderPaletteBufferToCanvas } from '../lib/palette'
 import { applyGlow, createPixelBuffer, type PixelBuffer } from '../lib/pixel-buffer'
 import { codeToPixelBuffer } from '../lib/pixel-code'
 import { TITLE_LOGO_CODE } from '../lib/title-logo'
@@ -63,7 +65,15 @@ export function TitleCarousel({ games, onSelectGame }: TitleCarouselProps) {
     return previewBufferRef.current
   }, [games, total, onSelectGame, input])
 
-  useFaviconLoop(getBuffer, { fps: 8, previewCanvasRef })
+  const render = useCallback((buffer: PixelBuffer, canvas: HTMLCanvasElement) => {
+    if (indexRef.current === 0) {
+      renderPaletteBufferToCanvas(buffer, canvas)
+    } else {
+      renderPixelBufferToCanvas(buffer, canvas)
+    }
+  }, [])
+
+  useFaviconLoop(getBuffer, { fps: 8, previewCanvasRef, render })
 
   return (
     <>
