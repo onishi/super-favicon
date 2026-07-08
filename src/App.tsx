@@ -45,8 +45,13 @@ function App() {
 
   const game = selectedId ? getGameById(selectedId) : undefined
 
+  const closeChrome = useCallback(() => {
+    setIsMaximized(false)
+    if (isEditorOpen) selectGame(null)
+  }, [isEditorOpen, selectGame])
+
   return (
-    <BrowserChrome isMaximized={isMaximized} onMaximize={() => setIsMaximized(true)} onClose={() => setIsMaximized(false)}>
+    <BrowserChrome isMaximized={isMaximized} onMaximize={() => setIsMaximized(true)} onClose={closeChrome}>
       <main>
         {game ? (
           <GameView game={game} onExit={() => selectGame(null)} isMaximized={isMaximized} />

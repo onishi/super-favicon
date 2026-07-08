@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { getPixelsCodeFromLocation, setPixelsCodeInLocation } from '../lib/editor-url'
+import { updateFaviconLink } from '../lib/favicon-renderer'
 import { colorForValue, OFF_COLOR, PALETTE, renderPaletteBufferToCanvas } from '../lib/palette'
 import {
   GRID_SIZE,
@@ -81,6 +82,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
   const [selectedValue, setSelectedValue] = useState(DEFAULT_VALUE)
   const [hoverValue, setHoverValue] = useState<number | null>(null)
   const [tool, setTool] = useState<Tool>('pen')
+  const [isShiftHeld, setIsShiftHeld] = useState(false)
   const [, forceHistoryRerender] = useState(0)
 
   if (!bufferRef.current) {
@@ -90,9 +92,42 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
 
   const [code, setCode] = useState(() => pixelBufferToCode(bufferRef.current as PixelBuffer))
 
+  useEffect(() => {
+    document.title = 'ドット絵エディタ'
+  }, [])
+
+  useEffect(() => {
+    const handleShiftDown = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') setIsShiftHeld(true)
+    }
+    const handleShiftUp = (event: KeyboardEvent) => {
+      if (event.key === 'Shift') setIsShiftHeld(false)
+    }
+    // Also clear on blur so it doesn't get stuck if focus leaves the page
+    // (e.g. alt-tab) while Shift is held, since keyup would never fire.
+    const handleBlur = () => setIsShiftHeld(false)
+    window.addEventListener('keydown', handleShiftDown)
+    window.addEventListener('keyup', handleShiftUp)
+    window.addEventListener('blur', handleBlur)
+    return () => {
+      window.removeEventListener('keydown', handleShiftDown)
+      window.removeEventListener('keyup', handleShiftUp)
+      window.removeEventListener('blur', handleBlur)
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onExit()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onExit])
+
   const redraw = useCallback(() => {
     if (canvasRef.current && bufferRef.current) {
       renderEditorCanvas(bufferRef.current, canvasRef.current, rectPreviewRef.current)
+      updateFaviconLink(canvasRef.current)
     }
   }, [])
 
@@ -226,29 +261,36 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
 
   return (
     <div>
-      <button type="button" onClick={onExit}>
-        ← メニューに戻る
-      </button>
-      <h2>ドット絵エディタ</h2>
-      <p>Shift + クリックでスポイト（カーソル位置の色をパレットから選択）</p>
       <div className="pixel-editor__workspace">
-        <canvas
-          ref={canvasRef}
-          width={GRID_SIZE}
-          height={GRID_SIZE}
+        <div
           style={{
+            position: 'relative',
             width: GRID_SIZE * DISPLAY_SCALE,
             height: GRID_SIZE * DISPLAY_SCALE,
-            boxSizing: 'border-box',
-            imageRendering: 'pixelated',
-            border: '1px solid #ccc',
-            touchAction: 'none',
           }}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerLeave}
-        />
+        >
+          <canvas
+            ref={canvasRef}
+            width={GRID_SIZE}
+            height={GRID_SIZE}
+            style={{
+              width: GRID_SIZE * DISPLAY_SCALE,
+              height: GRID_SIZE * DISPLAY_SCALE,
+              // outline (not border) so it doesn't shrink the content box —
+              // a border here would desync the bitmap from the grid overlay,
+              // which is sized to the full box.
+              outline: '1px solid #ccc',
+              imageRendering: 'pixelated',
+              touchAction: 'none',
+              cursor: isShiftHeld ? 'crosshair' : undefined,
+            }}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerLeave}
+          />
+          <div className="pixel-editor__grid-overlay" />
+        </div>
         <div
           className="pixel-editor__palette"
           style={{ width: GRID_SIZE * DISPLAY_SCALE, height: GRID_SIZE * DISPLAY_SCALE }}
@@ -298,6 +340,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
           この配置でライフゲームを開始
         </button>
       </div>
+      <p>Shift + クリックでスポイト（カーソル位置の色をパレットから選択）</p>
       <p>この配置のURL（共有・復元用、現在のアドレスバーにも反映されています）</p>
       <code className="pixel-editor__code">{chunkCode(code, GRID_SIZE)}</code>
     </div>
