@@ -20,10 +20,12 @@ const BIRD_X = 3
 const BIRD_PHYSICAL_X = BIRD_X * CHARACTER_SIZE
 
 const GAP_SIZE = 7
-const PIPE_SPACING = 8
-// Characters stay on the 2x2 grid, but the world scrolls in smooth 1-physical-pixel
-// steps rather than jumping a full character width at a time.
-const SCROLL_SPEED = 0.5
+const PIPE_SPACING_PHYSICAL = 8 * CHARACTER_SIZE
+// Characters stay on the 2x2 grid, but the world scrolls in whole 1-physical-pixel
+// steps rather than jumping a full character width at a time. Both the ground and
+// the pipes advance from the same integer tick counter so they can never drift out
+// of sync with each other (no floating point rounding involved).
+const SCROLL_TICK_INTERVAL = 2
 
 const GROUND_LOGICAL_HEIGHT = 1
 const GROUND_TOP_Y = GRID_SIZE - GROUND_LOGICAL_HEIGHT * CHARACTER_SIZE
@@ -31,7 +33,7 @@ const GROUND_STRIPE_WIDTH = 4
 const DEATH_Y = LOGICAL_GRID_SIZE - GROUND_LOGICAL_HEIGHT
 
 interface Pipe {
-  x: number // logical units (float — advances in physical-pixel-sized fractions)
+  x: number // physical pixel position of the wall's left edge (integer)
   gapStart: number
 }
 
@@ -46,6 +48,7 @@ export const flappyGame: GameDefinition = {
     let birdY: number
     let velocity: number
     let pipes: Pipe[]
+    let scrollFrameCount = 0
     let blinkCounter = 0
     let groundOffset = 0
     let isGameOver = false
@@ -55,9 +58,10 @@ export const flappyGame: GameDefinition = {
       birdY = LOGICAL_GRID_SIZE / 2
       velocity = 0
       pipes = [
-        { x: LOGICAL_GRID_SIZE + PIPE_SPACING, gapStart: randomGapStart() },
-        { x: LOGICAL_GRID_SIZE + PIPE_SPACING * 2, gapStart: randomGapStart() },
+        { x: GRID_SIZE + PIPE_SPACING_PHYSICAL, gapStart: randomGapStart() },
+        { x: GRID_SIZE + PIPE_SPACING_PHYSICAL * 2, gapStart: randomGapStart() },
       ]
+      scrollFrameCount = 0
       blinkCounter = 0
       groundOffset = 0
       isGameOver = false
@@ -96,22 +100,25 @@ export const flappyGame: GameDefinition = {
           return
         }
 
-        groundOffset += SCROLL_SPEED
-        for (const pipe of pipes) {
-          pipe.x -= SCROLL_SPEED / CHARACTER_SIZE
-          if (pipe.x < -1) {
-            const maxX = Math.max(...pipes.map((p) => p.x))
-            pipe.x = maxX + PIPE_SPACING
-            pipe.gapStart = randomGapStart()
+        scrollFrameCount += 1
+        if (scrollFrameCount >= SCROLL_TICK_INTERVAL) {
+          scrollFrameCount = 0
+          groundOffset = (groundOffset + 1) % (GROUND_STRIPE_WIDTH * 2)
+          for (const pipe of pipes) {
+            pipe.x -= 1
+            if (pipe.x < -CHARACTER_SIZE) {
+              const maxX = Math.max(...pipes.map((p) => p.x))
+              pipe.x = maxX + PIPE_SPACING_PHYSICAL
+              pipe.gapStart = randomGapStart()
+            }
           }
         }
 
         const roundedBirdY = Math.round(birdY)
         const birdRight = BIRD_PHYSICAL_X + CHARACTER_SIZE - 1
         for (const pipe of pipes) {
-          const wallLeft = Math.round(pipe.x * CHARACTER_SIZE)
-          const wallRight = wallLeft + CHARACTER_SIZE - 1
-          const overlapsX = wallRight >= BIRD_PHYSICAL_X && wallLeft <= birdRight
+          const wallRight = pipe.x + CHARACTER_SIZE - 1
+          const overlapsX = wallRight >= BIRD_PHYSICAL_X && pipe.x <= birdRight
           if (overlapsX && (roundedBirdY < pipe.gapStart || roundedBirdY >= pipe.gapStart + GAP_SIZE)) {
             die()
             return
@@ -120,12 +127,11 @@ export const flappyGame: GameDefinition = {
       },
       render: (buffer) => {
         for (const pipe of pipes) {
-          const wallLeft = Math.round(pipe.x * CHARACTER_SIZE)
-          if (wallLeft + CHARACTER_SIZE - 1 < 0 || wallLeft >= GRID_SIZE) continue
+          if (pipe.x + CHARACTER_SIZE - 1 < 0 || pipe.x >= GRID_SIZE) continue
           for (let ly = 0; ly < LOGICAL_GRID_SIZE; ly++) {
             if (ly < pipe.gapStart || ly >= pipe.gapStart + GAP_SIZE) {
               for (let dx = 0; dx < CHARACTER_SIZE; dx++) {
-                const px = wallLeft + dx
+                const px = pipe.x + dx
                 if (px < 0 || px >= GRID_SIZE) continue
                 for (let dy = 0; dy < CHARACTER_SIZE; dy++) {
                   setPixel(buffer, px, ly * CHARACTER_SIZE + dy, ACCENT)
@@ -136,9 +142,8 @@ export const flappyGame: GameDefinition = {
         }
 
         // Ground strip with alternating stripes so scrolling is visible.
-        const flooredGroundOffset = Math.floor(groundOffset) % (GROUND_STRIPE_WIDTH * 2)
         for (let x = 0; x < GRID_SIZE; x++) {
-          const stripe = Math.floor((x + flooredGroundOffset) / GROUND_STRIPE_WIDTH) % 2 === 0 ? GROUND : GROUND_ALT
+          const stripe = Math.floor((x + groundOffset) / GROUND_STRIPE_WIDTH) % 2 === 0 ? GROUND : GROUND_ALT
           for (let y = GROUND_TOP_Y; y < GRID_SIZE; y++) {
             setPixel(buffer, x, y, stripe)
           }
