@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
 import { getPixelsCodeFromLocation, setPixelsCodeInLocation } from '../lib/editor-url'
+import { updateFaviconLink } from '../lib/favicon-renderer'
 import { colorForValue, OFF_COLOR, PALETTE, renderPaletteBufferToCanvas } from '../lib/palette'
 import {
   GRID_SIZE,
@@ -93,6 +94,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
   const redraw = useCallback(() => {
     if (canvasRef.current && bufferRef.current) {
       renderEditorCanvas(bufferRef.current, canvasRef.current, rectPreviewRef.current)
+      updateFaviconLink(canvasRef.current)
     }
   }, [])
 
