@@ -22,6 +22,15 @@ function ControlButton({ action, input, label, className }: ControlButtonProps) 
     event.preventDefault()
     input.press(action)
     setIsPressed(true)
+    // Keep receiving pointer events for this button even if the finger drifts
+    // off its bounds before lifting, so release is never missed (which would
+    // otherwise leave the action stuck "held"). Not all pointers support
+    // capture (e.g. synthetic events in tests), so this is best-effort.
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId)
+    } catch {
+      // ignore
+    }
   }
   const handlePointerUp = () => {
     input.release(action)

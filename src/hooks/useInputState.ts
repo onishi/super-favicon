@@ -8,7 +8,17 @@ export interface InputState {
 }
 
 export function useInputState(): InputState {
-  const pressedRef = useRef<Record<InputAction, boolean>>({
+  const heldRef = useRef<Record<InputAction, boolean>>({
+    up: false,
+    down: false,
+    left: false,
+    right: false,
+    confirm: false,
+  })
+  // Sticks until the next isPressed() read. Without this, a tap shorter than
+  // the game loop's poll interval (press+release both landing between two
+  // ticks) would never be observed at all — the input would just vanish.
+  const latchRef = useRef<Record<InputAction, boolean>>({
     up: false,
     down: false,
     left: false,
@@ -17,10 +27,11 @@ export function useInputState(): InputState {
   })
 
   const press = (action: InputAction) => {
-    pressedRef.current[action] = true
+    heldRef.current[action] = true
+    latchRef.current[action] = true
   }
   const release = (action: InputAction) => {
-    pressedRef.current[action] = false
+    heldRef.current[action] = false
   }
 
   useEffect(() => {
@@ -45,8 +56,14 @@ export function useInputState(): InputState {
     }
   }, [])
 
+  const isPressed = (action: InputAction) => {
+    const pressed = heldRef.current[action] || latchRef.current[action]
+    latchRef.current[action] = false
+    return pressed
+  }
+
   return {
-    isPressed: (action) => pressedRef.current[action],
+    isPressed,
     press,
     release,
   }
