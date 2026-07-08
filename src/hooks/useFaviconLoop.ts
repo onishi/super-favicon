@@ -9,6 +9,7 @@ import {
 export interface UseFaviconLoopOptions extends FaviconRendererOptions {
   fps?: number
   previewCanvasRef?: RefObject<HTMLCanvasElement | null>
+  render?: (buffer: PixelBuffer, canvas: HTMLCanvasElement) => void
 }
 
 export function useFaviconLoop(
@@ -25,6 +26,7 @@ export function useFaviconLoop(
     glowAccentColor = '#005500',
     glowRedColor = '#550000',
     previewCanvasRef,
+    render,
   } = options
   const faviconCanvasRef = useRef<HTMLCanvasElement | null>(null)
 
@@ -52,11 +54,12 @@ export function useFaviconLoop(
         glowAccentColor,
         glowRedColor,
       }
-      renderPixelBufferToCanvas(buffer, faviconCanvas, colorOptions)
+      const draw = render ?? ((b: PixelBuffer, c: HTMLCanvasElement) => renderPixelBufferToCanvas(b, c, colorOptions))
+      draw(buffer, faviconCanvas)
       updateFaviconLink(faviconCanvas)
 
       if (previewCanvasRef?.current) {
-        renderPixelBufferToCanvas(buffer, previewCanvasRef.current, colorOptions)
+        draw(buffer, previewCanvasRef.current)
       }
     }
     rafId = requestAnimationFrame(tick)
@@ -73,5 +76,6 @@ export function useFaviconLoop(
     glowAccentColor,
     glowRedColor,
     previewCanvasRef,
+    render,
   ])
 }
