@@ -4,6 +4,8 @@ import {
   GLOW_ON,
   GLOW_RED,
   GRID_SIZE,
+  GROUND,
+  GROUND_ALT,
   ON,
   RED,
   type PixelBuffer,
@@ -17,6 +19,8 @@ export interface FaviconRendererOptions {
   glowOnColor?: string
   glowAccentColor?: string
   glowRedColor?: string
+  groundColor?: string
+  groundAltColor?: string
 }
 
 export function renderPixelBufferToCanvas(
@@ -30,6 +34,8 @@ export function renderPixelBufferToCanvas(
     glowOnColor = '#555555',
     glowAccentColor = '#005500',
     glowRedColor = '#550000',
+    groundColor = '#c8a878',
+    groundAltColor = '#a8845a',
   }: FaviconRendererOptions = {},
 ): void {
   canvas.width = GRID_SIZE
@@ -62,6 +68,12 @@ export function renderPixelBufferToCanvas(
         ctx.fillRect(x, y, 1, 1)
       } else if (value === GLOW_RED) {
         ctx.fillStyle = glowRedColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === GROUND) {
+        ctx.fillStyle = groundColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === GROUND_ALT) {
+        ctx.fillStyle = groundAltColor
         ctx.fillRect(x, y, 1, 1)
       }
     }
