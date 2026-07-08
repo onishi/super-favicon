@@ -1,14 +1,25 @@
 import {
   ACCENT,
+  BLUE,
+  CYAN,
+  FIELD_BG,
   GLOW_ACCENT,
+  GLOW_BLUE,
+  GLOW_CYAN,
   GLOW_ON,
   GLOW_ORANGE,
+  GLOW_PURPLE,
+  GLOW_RED,
+  GLOW_YELLOW,
   GRID_SIZE,
   GROUND,
   GROUND_ALT,
   ON,
   ORANGE,
+  PURPLE,
+  RED,
   type PixelBuffer,
+  YELLOW,
 } from './pixel-buffer'
 
 export interface FaviconRendererOptions {
@@ -21,6 +32,17 @@ export interface FaviconRendererOptions {
   glowOrangeColor?: string
   groundColor?: string
   groundAltColor?: string
+  cyanColor?: string
+  yellowColor?: string
+  purpleColor?: string
+  redColor?: string
+  blueColor?: string
+  glowCyanColor?: string
+  glowYellowColor?: string
+  glowPurpleColor?: string
+  glowRedColor?: string
+  glowBlueColor?: string
+  fieldBgColor?: string
 }
 
 export function renderPixelBufferToCanvas(
@@ -36,6 +58,17 @@ export function renderPixelBufferToCanvas(
     glowOrangeColor = '#552e00',
     groundColor = '#c8a878',
     groundAltColor = '#a8845a',
+    cyanColor = '#00ffff',
+    yellowColor = '#ffff00',
+    purpleColor = '#a000f0',
+    redColor = '#ff0000',
+    blueColor = '#4d4dff',
+    glowCyanColor = '#005555',
+    glowYellowColor = '#555500',
+    glowPurpleColor = '#380058',
+    glowRedColor = '#550000',
+    glowBlueColor = '#1a1a55',
+    fieldBgColor = '#303030',
   }: FaviconRendererOptions = {},
 ): void {
   canvas.width = GRID_SIZE
@@ -74,6 +107,39 @@ export function renderPixelBufferToCanvas(
         ctx.fillRect(x, y, 1, 1)
       } else if (value === GROUND_ALT) {
         ctx.fillStyle = groundAltColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === CYAN) {
+        ctx.fillStyle = cyanColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === YELLOW) {
+        ctx.fillStyle = yellowColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === PURPLE) {
+        ctx.fillStyle = purpleColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === RED) {
+        ctx.fillStyle = redColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === BLUE) {
+        ctx.fillStyle = blueColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === GLOW_CYAN) {
+        ctx.fillStyle = glowCyanColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === GLOW_YELLOW) {
+        ctx.fillStyle = glowYellowColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === GLOW_PURPLE) {
+        ctx.fillStyle = glowPurpleColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === GLOW_RED) {
+        ctx.fillStyle = glowRedColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === GLOW_BLUE) {
+        ctx.fillStyle = glowBlueColor
+        ctx.fillRect(x, y, 1, 1)
+      } else if (value === FIELD_BG) {
+        ctx.fillStyle = fieldBgColor
         ctx.fillRect(x, y, 1, 1)
       }
     }
