@@ -2,7 +2,6 @@ import {
   ACCENT,
   BLUE,
   CYAN,
-  FIELD_BG,
   GLOW_ACCENT,
   GLOW_BLUE,
   GLOW_CYAN,
@@ -42,7 +41,6 @@ export interface FaviconRendererOptions {
   glowPurpleColor?: string
   glowRedColor?: string
   glowBlueColor?: string
-  fieldBgColor?: string
 }
 
 export function renderPixelBufferToCanvas(
@@ -68,7 +66,6 @@ export function renderPixelBufferToCanvas(
     glowPurpleColor = '#380058',
     glowRedColor = '#550000',
     glowBlueColor = '#1a1a55',
-    fieldBgColor = '#303030',
   }: FaviconRendererOptions = {},
 ): void {
   canvas.width = GRID_SIZE
@@ -137,9 +134,6 @@ export function renderPixelBufferToCanvas(
         ctx.fillRect(x, y, 1, 1)
       } else if (value === GLOW_BLUE) {
         ctx.fillStyle = glowBlueColor
-        ctx.fillRect(x, y, 1, 1)
-      } else if (value === FIELD_BG) {
-        ctx.fillStyle = fieldBgColor
         ctx.fillRect(x, y, 1, 1)
       }
     }
