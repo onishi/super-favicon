@@ -15,7 +15,7 @@ import type { GameDefinition } from './types'
 const GRAVITY = 0.15
 const FLAP_STRENGTH = -1.2
 const MAX_FALL_SPEED = 1.2
-const CEILING_MARGIN = 2
+const CEILING_MARGIN = LOGICAL_GRID_SIZE / 2
 const BIRD_X = 3
 
 const GAP_SIZE = 7
@@ -112,8 +112,11 @@ export const flappyGame: GameDefinition = {
         }
       },
       render: (buffer) => {
-        const roundedBirdY = Math.max(0, Math.min(LOGICAL_GRID_SIZE - 1, Math.round(birdY)))
-        setCharacter(buffer, BIRD_X, roundedBirdY, RED)
+        const roundedBirdY = Math.round(birdY)
+        // Above the ceiling is genuinely off-screen space; don't draw the bird there.
+        if (roundedBirdY >= 0 && roundedBirdY < LOGICAL_GRID_SIZE) {
+          setCharacter(buffer, BIRD_X, roundedBirdY, RED)
+        }
 
         for (const pipe of pipes) {
           if (pipe.x < 0 || pipe.x >= LOGICAL_GRID_SIZE) continue
