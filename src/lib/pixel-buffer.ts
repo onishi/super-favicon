@@ -22,7 +22,6 @@ export const GLOW_YELLOW = 15
 export const GLOW_PURPLE = 16
 export const GLOW_RED = 17
 export const GLOW_BLUE = 18
-export const FIELD_BG = 19
 
 export type PixelBuffer = Uint8Array
 

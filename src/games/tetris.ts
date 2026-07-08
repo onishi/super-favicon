@@ -3,7 +3,6 @@ import {
   BLUE,
   CHARACTER_SIZE,
   CYAN,
-  FIELD_BG,
   GRID_SIZE,
   LOGICAL_GRID_SIZE,
   ON,
@@ -260,7 +259,7 @@ export const tetrisGame: GameDefinition = {
         for (let y = 0; y < FIELD_HEIGHT; y++) {
           for (let x = 0; x < FIELD_WIDTH; x++) {
             const color = grid[y * FIELD_WIDTH + x]
-            setCharacter(buffer, FIELD_OFFSET_X + x, y, color !== 0 ? color : FIELD_BG)
+            if (color !== 0) setCharacter(buffer, FIELD_OFFSET_X + x, y, color)
           }
         }
 
@@ -279,11 +278,6 @@ export const tetrisGame: GameDefinition = {
         }
 
         if (!isGameOver) {
-          for (let y = 0; y < NEXT_BOX_WIDTH; y++) {
-            for (let x = 0; x < NEXT_BOX_WIDTH; x++) {
-              setCharacter(buffer, NEXT_BOX_X + x, NEXT_BOX_Y + y, FIELD_BG)
-            }
-          }
           const nextColor = PIECE_COLORS[nextPieceType]
           for (const [cx, cy] of cellsFor(nextPieceType, 0)) {
             setCharacter(buffer, NEXT_BOX_X + cx, NEXT_BOX_Y + cy, nextColor)
