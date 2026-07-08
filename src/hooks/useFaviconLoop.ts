@@ -25,6 +25,8 @@ export function useFaviconLoop(
     glowOnColor = '#555555',
     glowAccentColor = '#005500',
     glowRedColor = '#550000',
+    groundColor = '#c8a878',
+    groundAltColor = '#a8845a',
     previewCanvasRef,
     render,
   } = options
@@ -53,6 +55,8 @@ export function useFaviconLoop(
         glowOnColor,
         glowAccentColor,
         glowRedColor,
+        groundColor,
+        groundAltColor,
       }
       const draw = render ?? ((b: PixelBuffer, c: HTMLCanvasElement) => renderPixelBufferToCanvas(b, c, colorOptions))
       draw(buffer, faviconCanvas)
@@ -75,6 +79,8 @@ export function useFaviconLoop(
     glowOnColor,
     glowAccentColor,
     glowRedColor,
+    groundColor,
+    groundAltColor,
     previewCanvasRef,
     render,
   ])

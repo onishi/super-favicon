@@ -10,6 +10,8 @@ export const RED = 3
 export const GLOW_ON = 4
 export const GLOW_ACCENT = 5
 export const GLOW_RED = 6
+export const GROUND = 7
+export const GROUND_ALT = 8
 
 export type PixelBuffer = Uint8Array
 
