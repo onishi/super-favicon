@@ -17,10 +17,13 @@ const FLAP_STRENGTH = -1.2
 const MAX_FALL_SPEED = 1.2
 const CEILING_MARGIN = LOGICAL_GRID_SIZE / 2
 const BIRD_X = 3
+const BIRD_PHYSICAL_X = BIRD_X * CHARACTER_SIZE
 
 const GAP_SIZE = 7
 const PIPE_SPACING = 8
-const PIPE_STEP_INTERVAL = 4
+// Characters stay on the 2x2 grid, but the world scrolls in smooth 1-physical-pixel
+// steps rather than jumping a full character width at a time.
+const SCROLL_SPEED = 0.5
 
 const GROUND_LOGICAL_HEIGHT = 1
 const GROUND_TOP_Y = GRID_SIZE - GROUND_LOGICAL_HEIGHT * CHARACTER_SIZE
@@ -28,7 +31,7 @@ const GROUND_STRIPE_WIDTH = 4
 const DEATH_Y = LOGICAL_GRID_SIZE - GROUND_LOGICAL_HEIGHT
 
 interface Pipe {
-  x: number
+  x: number // logical units (float — advances in physical-pixel-sized fractions)
   gapStart: number
 }
 
@@ -43,7 +46,6 @@ export const flappyGame: GameDefinition = {
     let birdY: number
     let velocity: number
     let pipes: Pipe[]
-    let frameCount = 0
     let blinkCounter = 0
     let groundOffset = 0
     let isGameOver = false
@@ -56,7 +58,6 @@ export const flappyGame: GameDefinition = {
         { x: LOGICAL_GRID_SIZE + PIPE_SPACING, gapStart: randomGapStart() },
         { x: LOGICAL_GRID_SIZE + PIPE_SPACING * 2, gapStart: randomGapStart() },
       ]
-      frameCount = 0
       blinkCounter = 0
       groundOffset = 0
       isGameOver = false
@@ -95,23 +96,23 @@ export const flappyGame: GameDefinition = {
           return
         }
 
-        frameCount += 1
-        if (frameCount >= PIPE_STEP_INTERVAL) {
-          frameCount = 0
-          groundOffset = (groundOffset + CHARACTER_SIZE) % (GROUND_STRIPE_WIDTH * 2)
-          for (const pipe of pipes) {
-            pipe.x -= 1
-            if (pipe.x < -1) {
-              const maxX = Math.max(...pipes.map((p) => p.x))
-              pipe.x = maxX + PIPE_SPACING
-              pipe.gapStart = randomGapStart()
-            }
+        groundOffset += SCROLL_SPEED
+        for (const pipe of pipes) {
+          pipe.x -= SCROLL_SPEED / CHARACTER_SIZE
+          if (pipe.x < -1) {
+            const maxX = Math.max(...pipes.map((p) => p.x))
+            pipe.x = maxX + PIPE_SPACING
+            pipe.gapStart = randomGapStart()
           }
         }
 
         const roundedBirdY = Math.round(birdY)
+        const birdRight = BIRD_PHYSICAL_X + CHARACTER_SIZE - 1
         for (const pipe of pipes) {
-          if (pipe.x === BIRD_X && (roundedBirdY < pipe.gapStart || roundedBirdY >= pipe.gapStart + GAP_SIZE)) {
+          const wallLeft = Math.round(pipe.x * CHARACTER_SIZE)
+          const wallRight = wallLeft + CHARACTER_SIZE - 1
+          const overlapsX = wallRight >= BIRD_PHYSICAL_X && wallLeft <= birdRight
+          if (overlapsX && (roundedBirdY < pipe.gapStart || roundedBirdY >= pipe.gapStart + GAP_SIZE)) {
             die()
             return
           }
@@ -119,17 +120,25 @@ export const flappyGame: GameDefinition = {
       },
       render: (buffer) => {
         for (const pipe of pipes) {
-          if (pipe.x < 0 || pipe.x >= LOGICAL_GRID_SIZE) continue
-          for (let y = 0; y < LOGICAL_GRID_SIZE; y++) {
-            if (y < pipe.gapStart || y >= pipe.gapStart + GAP_SIZE) {
-              setCharacter(buffer, pipe.x, y, ACCENT)
+          const wallLeft = Math.round(pipe.x * CHARACTER_SIZE)
+          if (wallLeft + CHARACTER_SIZE - 1 < 0 || wallLeft >= GRID_SIZE) continue
+          for (let ly = 0; ly < LOGICAL_GRID_SIZE; ly++) {
+            if (ly < pipe.gapStart || ly >= pipe.gapStart + GAP_SIZE) {
+              for (let dx = 0; dx < CHARACTER_SIZE; dx++) {
+                const px = wallLeft + dx
+                if (px < 0 || px >= GRID_SIZE) continue
+                for (let dy = 0; dy < CHARACTER_SIZE; dy++) {
+                  setPixel(buffer, px, ly * CHARACTER_SIZE + dy, ACCENT)
+                }
+              }
             }
           }
         }
 
         // Ground strip with alternating stripes so scrolling is visible.
+        const flooredGroundOffset = Math.floor(groundOffset) % (GROUND_STRIPE_WIDTH * 2)
         for (let x = 0; x < GRID_SIZE; x++) {
-          const stripe = Math.floor((x + groundOffset) / GROUND_STRIPE_WIDTH) % 2 === 0 ? GROUND : GROUND_ALT
+          const stripe = Math.floor((x + flooredGroundOffset) / GROUND_STRIPE_WIDTH) % 2 === 0 ? GROUND : GROUND_ALT
           for (let y = GROUND_TOP_Y; y < GRID_SIZE; y++) {
             setPixel(buffer, x, y, stripe)
           }
