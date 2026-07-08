@@ -11,9 +11,10 @@ const TITLE_UPDATE_INTERVAL_MS = 250
 interface GameViewProps {
   game: GameDefinition
   onExit: () => void
+  isMaximized: boolean
 }
 
-export function GameView({ game, onExit }: GameViewProps) {
+export function GameView({ game, onExit, isMaximized }: GameViewProps) {
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
   const input = useInputState()
   const { getBuffer, getScore } = useGameRuntime(game, input)
@@ -39,7 +40,7 @@ export function GameView({ game, onExit }: GameViewProps) {
 
   return (
     <div>
-      <FaviconPreview ref={previewCanvasRef} />
+      {isMaximized && <FaviconPreview ref={previewCanvasRef} />}
       <TouchControls input={input} onReset={onExit} />
     </div>
   )

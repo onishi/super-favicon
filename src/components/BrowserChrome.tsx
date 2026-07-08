@@ -6,12 +6,15 @@ const FAVICON_LINK_ID = 'favicon'
 
 interface BrowserChromeProps {
   children: ReactNode
+  isMaximized: boolean
+  onMaximize: () => void
+  onClose: () => void
 }
 
 // A fake browser window wrapped around the whole app: since the actual tab
 // title/favicon only visibly update on desktop, this mirrors both in-page so
 // the "favicon as game screen" concept reads clearly everywhere.
-export function BrowserChrome({ children }: BrowserChromeProps) {
+export function BrowserChrome({ children, isMaximized, onMaximize, onClose }: BrowserChromeProps) {
   const [title, setTitle] = useState(document.title)
   const [faviconHref, setFaviconHref] = useState('')
 
@@ -30,9 +33,24 @@ export function BrowserChrome({ children }: BrowserChromeProps) {
     <div className="browser-chrome">
       <div className="browser-chrome__tabbar">
         <div className="browser-chrome__dots">
-          <span className="browser-chrome__dot browser-chrome__dot--red" />
-          <span className="browser-chrome__dot browser-chrome__dot--yellow" />
-          <span className="browser-chrome__dot browser-chrome__dot--green" />
+          <button
+            type="button"
+            className="browser-chrome__dot browser-chrome__dot--red"
+            aria-label="閉じる"
+            onClick={onClose}
+          />
+          <button
+            type="button"
+            className="browser-chrome__dot browser-chrome__dot--yellow"
+            aria-label="しまう"
+            onClick={onClose}
+          />
+          <button
+            type="button"
+            className="browser-chrome__dot browser-chrome__dot--green"
+            aria-label={isMaximized ? '元に戻す' : '最大化'}
+            onClick={onMaximize}
+          />
         </div>
         <div className="browser-chrome__tab">
           {faviconHref && <img className="browser-chrome__favicon" src={faviconHref} alt="" />}
