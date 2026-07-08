@@ -151,6 +151,14 @@ export function TitleCarousel({ games, onSelectGame, isMaximized }: TitleCarouse
     setIndex(0)
   }, [])
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') resetToTitle()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [resetToTitle])
+
   return (
     <>
       {isMaximized && <FaviconPreview ref={previewCanvasRef} />}
