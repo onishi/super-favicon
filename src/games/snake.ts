@@ -48,6 +48,7 @@ export const snakeGame: GameDefinition = {
     let food: Vec
     let frameCount = 0
     let blinkCounter = 0
+    let score = 0
     let isGameOver = false
     let confirmWasPressed = false
 
@@ -60,6 +61,7 @@ export const snakeGame: GameDefinition = {
       food = randomEmptyCell(new Set(snake.map((s) => `${s.x},${s.y}`)))
       frameCount = 0
       blinkCounter = 0
+      score = 0
       isGameOver = false
     }
     reset()
@@ -111,6 +113,7 @@ export const snakeGame: GameDefinition = {
 
         snake.unshift(newHead)
         if (ateFood) {
+          score += 1
           food = randomEmptyCell(new Set(snake.map((s) => `${s.x},${s.y}`)))
         } else {
           snake.pop()
@@ -129,6 +132,7 @@ export const snakeGame: GameDefinition = {
           }
         }
       },
+      getScore: () => score,
     }
   },
 }

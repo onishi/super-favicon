@@ -104,6 +104,10 @@ export function TitleCarousel({ games, onSelectGame }: TitleCarouselProps) {
     previewBufferRef.current = index === 0 ? TITLE_BUFFER : renderGamePreview(games[index - 1])
   }, [index, games])
 
+  useEffect(() => {
+    document.title = index === 0 ? 'SUPER-FAVICON' : games[index - 1].name
+  }, [index, games])
+
   const getBuffer = useCallback(() => {
     blinkCounterRef.current += 1
 

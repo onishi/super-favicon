@@ -3,7 +3,12 @@ import type { GameDefinition } from '../games/types'
 import { applyGlow, clearPixelBuffer, createPixelBuffer, type PixelBuffer } from '../lib/pixel-buffer'
 import type { InputState } from './useInputState'
 
-export function useGameRuntime(game: GameDefinition, input: InputState): () => PixelBuffer {
+export interface GameRuntime {
+  getBuffer: () => PixelBuffer
+  getScore: () => number
+}
+
+export function useGameRuntime(game: GameDefinition, input: InputState): GameRuntime {
   const bufferRef = useRef<PixelBuffer>(createPixelBuffer())
   const instanceRef = useRef(game.create())
 
@@ -11,11 +16,15 @@ export function useGameRuntime(game: GameDefinition, input: InputState): () => P
     instanceRef.current = game.create()
   }, [game])
 
-  return useCallback(() => {
+  const getBuffer = useCallback(() => {
     instanceRef.current.update(input)
     clearPixelBuffer(bufferRef.current)
     instanceRef.current.render(bufferRef.current)
     applyGlow(bufferRef.current)
     return bufferRef.current
   }, [input])
+
+  const getScore = useCallback(() => instanceRef.current.getScore?.() ?? 0, [])
+
+  return { getBuffer, getScore }
 }

@@ -35,6 +35,7 @@ const DEATH_Y = LOGICAL_GRID_SIZE - GROUND_LOGICAL_HEIGHT
 interface Pipe {
   x: number // physical pixel position of the wall's left edge (integer)
   gapStart: number
+  passed: boolean
 }
 
 function randomGapStart(): number {
@@ -51,6 +52,7 @@ export const flappyGame: GameDefinition = {
     let scrollFrameCount = 0
     let blinkCounter = 0
     let groundOffset = 0
+    let score = 0
     let isGameOver = false
     let confirmWasPressed = false
 
@@ -58,12 +60,13 @@ export const flappyGame: GameDefinition = {
       birdY = LOGICAL_GRID_SIZE / 2
       velocity = 0
       pipes = [
-        { x: GRID_SIZE + PIPE_SPACING_PHYSICAL, gapStart: randomGapStart() },
-        { x: GRID_SIZE + PIPE_SPACING_PHYSICAL * 2, gapStart: randomGapStart() },
+        { x: GRID_SIZE + PIPE_SPACING_PHYSICAL, gapStart: randomGapStart(), passed: false },
+        { x: GRID_SIZE + PIPE_SPACING_PHYSICAL * 2, gapStart: randomGapStart(), passed: false },
       ]
       scrollFrameCount = 0
       blinkCounter = 0
       groundOffset = 0
+      score = 0
       isGameOver = false
     }
     reset()
@@ -106,10 +109,15 @@ export const flappyGame: GameDefinition = {
           groundOffset = (groundOffset + 1) % (GROUND_STRIPE_WIDTH * 2)
           for (const pipe of pipes) {
             pipe.x -= 1
+            if (!pipe.passed && pipe.x + CHARACTER_SIZE - 1 < BIRD_PHYSICAL_X) {
+              pipe.passed = true
+              score += 1
+            }
             if (pipe.x < -CHARACTER_SIZE) {
               const maxX = Math.max(...pipes.map((p) => p.x))
               pipe.x = maxX + PIPE_SPACING_PHYSICAL
               pipe.gapStart = randomGapStart()
+              pipe.passed = false
             }
           }
         }
@@ -165,6 +173,7 @@ export const flappyGame: GameDefinition = {
           }
         }
       },
+      getScore: () => score,
     }
   },
 }

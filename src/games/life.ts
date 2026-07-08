@@ -60,12 +60,14 @@ export const lifeGame: GameDefinition = {
     let presetIndex = hasCustomPattern ? -1 : DEFAULT_PRESET_INDEX
     let grid = hasCustomPattern ? downsampleToLogicalGrid(codeToPixelBuffer(initialCode)) : createGrid()
     let frameCount = 0
+    let generation = 0
     let confirmWasPressed = false
 
     const loadPreset = (index: number) => {
       grid = createGrid()
       const preset = PRESETS[index]
       placePattern(grid, preset.pattern(), preset.offsetX, preset.offsetY)
+      generation = 0
     }
     if (!hasCustomPattern) loadPreset(presetIndex)
 
@@ -83,6 +85,7 @@ export const lifeGame: GameDefinition = {
         if (frameCount >= STEP_INTERVAL) {
           frameCount = 0
           grid = step(grid)
+          generation += 1
         }
       },
       render: (buffer) => {
@@ -92,6 +95,7 @@ export const lifeGame: GameDefinition = {
           }
         }
       },
+      getScore: () => generation,
     }
   },
 }
