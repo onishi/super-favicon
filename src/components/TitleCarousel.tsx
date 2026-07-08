@@ -13,6 +13,7 @@ import { GameMenu } from './GameMenu'
 const TITLE_BUFFER = codeToPixelBuffer(TITLE_LOGO_CODE)
 
 const PAGER_ARROW_COLOR = '#ffffff'
+const PAGER_OUTLINE_COLOR = '#000000'
 const PAGER_CENTER_Y = Math.floor(GRID_SIZE / 2)
 
 // Leftward chevron anchored at the left edge (x=0); mirrored for the right edge below.
@@ -32,15 +33,41 @@ const RIGHT_ARROW_OFFSETS: Array<[number, number]> = LEFT_ARROW_OFFSETS.map(([dx
   dy,
 ])
 
+function toAbsoluteCells(offsets: Array<[number, number]>): Array<[number, number]> {
+  return offsets.map(([x, dy]) => [x, PAGER_CENTER_Y + dy])
+}
+
+function computeOutlineCells(cells: Array<[number, number]>): Array<[number, number]> {
+  const cellKeys = new Set(cells.map(([x, y]) => `${x},${y}`))
+  const outline = new Map<string, [number, number]>()
+  for (const [x, y] of cells) {
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        if (dx === 0 && dy === 0) continue
+        const nx = x + dx
+        const ny = y + dy
+        if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) continue
+        const key = `${nx},${ny}`
+        if (!cellKeys.has(key)) outline.set(key, [nx, ny])
+      }
+    }
+  }
+  return [...outline.values()]
+}
+
+const PAGER_FILL_CELLS = [...toAbsoluteCells(LEFT_ARROW_OFFSETS), ...toAbsoluteCells(RIGHT_ARROW_OFFSETS)]
+const PAGER_OUTLINE_CELLS = computeOutlineCells(PAGER_FILL_CELLS)
+
 function drawPagerArrows(canvas: HTMLCanvasElement): void {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
-  ctx.fillStyle = PAGER_ARROW_COLOR
-  for (const [dx, dy] of LEFT_ARROW_OFFSETS) {
-    ctx.fillRect(dx, PAGER_CENTER_Y + dy, 1, 1)
+  ctx.fillStyle = PAGER_OUTLINE_COLOR
+  for (const [x, y] of PAGER_OUTLINE_CELLS) {
+    ctx.fillRect(x, y, 1, 1)
   }
-  for (const [dx, dy] of RIGHT_ARROW_OFFSETS) {
-    ctx.fillRect(dx, PAGER_CENTER_Y + dy, 1, 1)
+  ctx.fillStyle = PAGER_ARROW_COLOR
+  for (const [x, y] of PAGER_FILL_CELLS) {
+    ctx.fillRect(x, y, 1, 1)
   }
 }
 
