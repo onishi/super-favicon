@@ -5,6 +5,7 @@ import './TouchControls.css'
 
 interface TouchControlsProps {
   input: InputState
+  onReset: () => void
 }
 
 interface ControlButtonProps {
@@ -35,16 +36,21 @@ function ControlButton({ action, input, label, className }: ControlButtonProps) 
   )
 }
 
-export function TouchControls({ input }: TouchControlsProps) {
+export function TouchControls({ input, onReset }: TouchControlsProps) {
   return (
     <div className="touch-controls">
-      <div className="touch-controls__dpad">
-        <ControlButton action="up" input={input} label="▲" className="touch-controls__up" />
-        <ControlButton action="left" input={input} label="◀" className="touch-controls__left" />
-        <ControlButton action="right" input={input} label="▶" className="touch-controls__right" />
-        <ControlButton action="down" input={input} label="▼" className="touch-controls__down" />
+      <div className="touch-controls__row">
+        <div className="touch-controls__dpad">
+          <ControlButton action="up" input={input} label="▲" className="touch-controls__up" />
+          <ControlButton action="left" input={input} label="◀" className="touch-controls__left" />
+          <ControlButton action="right" input={input} label="▶" className="touch-controls__right" />
+          <ControlButton action="down" input={input} label="▼" className="touch-controls__down" />
+        </div>
+        <ControlButton action="confirm" input={input} label="1" className="touch-controls__confirm" />
       </div>
-      <ControlButton action="confirm" input={input} label="1" className="touch-controls__confirm" />
+      <button type="button" className="touch-controls__reset" onClick={onReset}>
+        RESET
+      </button>
     </div>
   )
 }

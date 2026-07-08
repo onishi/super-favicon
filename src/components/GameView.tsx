@@ -28,12 +28,9 @@ export function GameView({ game, onExit }: GameViewProps) {
 
   return (
     <div>
-      <button type="button" onClick={onExit}>
-        ← メニューに戻る
-      </button>
       <h2>{game.name}</h2>
       <FaviconPreview ref={previewCanvasRef} />
-      <TouchControls input={input} />
+      <TouchControls input={input} onReset={onExit} />
     </div>
   )
 }
