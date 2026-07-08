@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import type { GameDefinition } from '../games/types'
 import { useFaviconLoop } from '../hooks/useFaviconLoop'
 import { useGameRuntime } from '../hooks/useGameRuntime'
@@ -17,6 +17,14 @@ export function GameView({ game, onExit }: GameViewProps) {
   const getBuffer = useGameRuntime(game, input)
 
   useFaviconLoop(getBuffer, { fps: 12, previewCanvasRef })
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onExit()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onExit])
 
   return (
     <div>
