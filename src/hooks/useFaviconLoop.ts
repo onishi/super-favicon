@@ -20,6 +20,8 @@ export function useFaviconLoop(
     onColor = '#ffffff',
     offColor = '#000000',
     accentColor = '#00ff00',
+    glowOnColor = '#555555',
+    glowAccentColor = '#005500',
     previewCanvasRef,
   } = options
   const faviconCanvasRef = useRef<HTMLCanvasElement | null>(null)
@@ -39,15 +41,16 @@ export function useFaviconLoop(
       lastTime = time
 
       const buffer = getBuffer()
-      renderPixelBufferToCanvas(buffer, faviconCanvas, { onColor, offColor, accentColor })
+      const colorOptions = { onColor, offColor, accentColor, glowOnColor, glowAccentColor }
+      renderPixelBufferToCanvas(buffer, faviconCanvas, colorOptions)
       updateFaviconLink(faviconCanvas)
 
       if (previewCanvasRef?.current) {
-        renderPixelBufferToCanvas(buffer, previewCanvasRef.current, { onColor, offColor, accentColor })
+        renderPixelBufferToCanvas(buffer, previewCanvasRef.current, colorOptions)
       }
     }
     rafId = requestAnimationFrame(tick)
 
     return () => cancelAnimationFrame(rafId)
-  }, [getBuffer, fps, onColor, offColor, accentColor, previewCanvasRef])
+  }, [getBuffer, fps, onColor, offColor, accentColor, glowOnColor, glowAccentColor, previewCanvasRef])
 }

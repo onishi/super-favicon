@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react'
 import type { GameDefinition } from '../games/types'
-import { clearPixelBuffer, createPixelBuffer, type PixelBuffer } from '../lib/pixel-buffer'
+import { applyGlow, clearPixelBuffer, createPixelBuffer, type PixelBuffer } from '../lib/pixel-buffer'
 import type { InputState } from './useInputState'
 
 export function useGameRuntime(game: GameDefinition, input: InputState): () => PixelBuffer {
@@ -15,6 +15,7 @@ export function useGameRuntime(game: GameDefinition, input: InputState): () => P
     instanceRef.current.update(input)
     clearPixelBuffer(bufferRef.current)
     instanceRef.current.render(bufferRef.current)
+    applyGlow(bufferRef.current)
     return bufferRef.current
   }, [input])
 }

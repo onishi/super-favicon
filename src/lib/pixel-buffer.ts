@@ -6,6 +6,8 @@ export const LOGICAL_GRID_SIZE = GRID_SIZE / CHARACTER_SIZE
 export const OFF = 0
 export const ON = 1
 export const ACCENT = 2
+export const GLOW_ON = 3
+export const GLOW_ACCENT = 4
 
 export type PixelBuffer = Uint8Array
 
@@ -73,5 +75,33 @@ export function floodFill(buffer: PixelBuffer, startX: number, startY: number, v
     if (buffer[y * GRID_SIZE + x] !== targetValue) continue
     buffer[y * GRID_SIZE + x] = value
     stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1])
+  }
+}
+
+const GLOW_NEIGHBOR_OFFSETS: Array<[number, number]> = [
+  [0, -1],
+  [0, 1],
+  [-1, 0],
+  [1, 0],
+]
+
+export function applyGlow(buffer: PixelBuffer): void {
+  const snapshot = buffer.slice()
+  for (let y = 0; y < GRID_SIZE; y++) {
+    for (let x = 0; x < GRID_SIZE; x++) {
+      const value = snapshot[y * GRID_SIZE + x]
+      if (value !== ON && value !== ACCENT) continue
+      const glowValue = value === ACCENT ? GLOW_ACCENT : GLOW_ON
+
+      for (const [dx, dy] of GLOW_NEIGHBOR_OFFSETS) {
+        const nx = x + dx
+        const ny = y + dy
+        if (nx < 0 || nx >= GRID_SIZE || ny < 0 || ny >= GRID_SIZE) continue
+        const index = ny * GRID_SIZE + nx
+        if (snapshot[index] === OFF && buffer[index] === OFF) {
+          buffer[index] = glowValue
+        }
+      }
+    }
   }
 }
