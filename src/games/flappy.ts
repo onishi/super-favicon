@@ -1,4 +1,4 @@
-import { GRID_SIZE, LOGICAL_GRID_SIZE, ON, setCharacter, setPixel } from '../lib/pixel-buffer'
+import { ACCENT, GRID_SIZE, LOGICAL_GRID_SIZE, ON, RED, setCharacter, setPixel } from '../lib/pixel-buffer'
 import type { GameDefinition } from './types'
 
 const GRAVITY = 0.15
@@ -6,7 +6,7 @@ const FLAP_STRENGTH = -1.2
 const MAX_FALL_SPEED = 1.2
 const BIRD_X = 3
 
-const GAP_SIZE = 4
+const GAP_SIZE = 7
 const PIPE_SPACING = 8
 const PIPE_STEP_INTERVAL = 4
 
@@ -91,13 +91,13 @@ export const flappyGame: GameDefinition = {
       },
       render: (buffer) => {
         const roundedBirdY = Math.max(0, Math.min(LOGICAL_GRID_SIZE - 1, Math.round(birdY)))
-        setCharacter(buffer, BIRD_X, roundedBirdY, ON)
+        setCharacter(buffer, BIRD_X, roundedBirdY, RED)
 
         for (const pipe of pipes) {
           if (pipe.x < 0 || pipe.x >= LOGICAL_GRID_SIZE) continue
           for (let y = 0; y < LOGICAL_GRID_SIZE; y++) {
             if (y < pipe.gapStart || y >= pipe.gapStart + GAP_SIZE) {
-              setCharacter(buffer, pipe.x, y, ON)
+              setCharacter(buffer, pipe.x, y, ACCENT)
             }
           }
         }

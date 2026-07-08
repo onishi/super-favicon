@@ -48,6 +48,8 @@ const PRESETS: Preset[] = [
   { name: 'ランダム', pattern: () => randomPattern(), offsetX: 0, offsetY: 0 },
 ]
 
+const DEFAULT_PRESET_INDEX = PRESETS.findIndex((preset) => preset.name === 'ランダム')
+
 export const lifeGame: GameDefinition = {
   id: 'life',
   name: 'ライフゲーム',
@@ -55,7 +57,7 @@ export const lifeGame: GameDefinition = {
     const initialCode = getPixelsCodeFromLocation()
     const hasCustomPattern = initialCode !== null
 
-    let presetIndex = hasCustomPattern ? -1 : 0
+    let presetIndex = hasCustomPattern ? -1 : DEFAULT_PRESET_INDEX
     let grid = hasCustomPattern ? downsampleToLogicalGrid(codeToPixelBuffer(initialCode)) : createGrid()
     let frameCount = 0
     let confirmWasPressed = false
