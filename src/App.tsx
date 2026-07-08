@@ -53,8 +53,8 @@ function App() {
       ) : (
         <>
           <TitleCarousel games={GAMES} onSelectGame={selectGame} />
-          <button type="button" onClick={openEditor}>
-            ドット絵エディタ
+          <button type="button" className="hidden-editor-button" onClick={openEditor} aria-label="ドット絵エディタ">
+            ✎
           </button>
         </>
       )}
