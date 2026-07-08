@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { BrowserChrome } from './components/BrowserChrome'
 import { GameView } from './components/GameView'
 import { PixelEditorView } from './components/PixelEditorView'
 import { TitleCarousel } from './components/TitleCarousel'
@@ -44,21 +45,23 @@ function App() {
   const game = selectedId ? getGameById(selectedId) : undefined
 
   return (
-    <main>
-      <h1>SUPER-FAVICON</h1>
-      {game ? (
-        <GameView game={game} onExit={() => selectGame(null)} />
-      ) : isEditorOpen ? (
-        <PixelEditorView onExit={() => selectGame(null)} onStartLifeGame={startLifeGameFromEditor} />
-      ) : (
-        <>
-          <TitleCarousel games={GAMES} onSelectGame={selectGame} />
-          <button type="button" className="hidden-editor-button" onClick={openEditor} aria-label="ドット絵エディタ">
-            ✎
-          </button>
-        </>
-      )}
-    </main>
+    <BrowserChrome>
+      <main>
+        <h1>SUPER-FAVICON</h1>
+        {game ? (
+          <GameView game={game} onExit={() => selectGame(null)} />
+        ) : isEditorOpen ? (
+          <PixelEditorView onExit={() => selectGame(null)} onStartLifeGame={startLifeGameFromEditor} />
+        ) : (
+          <>
+            <TitleCarousel games={GAMES} onSelectGame={selectGame} />
+            <button type="button" className="hidden-editor-button" onClick={openEditor} aria-label="ドット絵エディタ">
+              ✎
+            </button>
+          </>
+        )}
+      </main>
+    </BrowserChrome>
   )
 }
 
