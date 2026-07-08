@@ -57,8 +57,11 @@ function computeOutlineCells(cells: Array<[number, number]>): Array<[number, num
 
 const PAGER_FILL_CELLS = [...toAbsoluteCells(LEFT_ARROW_OFFSETS), ...toAbsoluteCells(RIGHT_ARROW_OFFSETS)]
 const PAGER_OUTLINE_CELLS = computeOutlineCells(PAGER_FILL_CELLS)
+const PAGER_BLINK_INTERVAL = 4
 
-function drawPagerArrows(canvas: HTMLCanvasElement): void {
+function drawPagerArrows(canvas: HTMLCanvasElement, blinkCounter: number): void {
+  if (Math.floor(blinkCounter / PAGER_BLINK_INTERVAL) % 2 !== 0) return
+
   const ctx = canvas.getContext('2d')
   if (!ctx) return
   ctx.fillStyle = PAGER_OUTLINE_COLOR
@@ -92,6 +95,7 @@ export function TitleCarousel({ games, onSelectGame }: TitleCarouselProps) {
   const leftWasPressed = useRef(false)
   const rightWasPressed = useRef(false)
   const confirmWasPressed = useRef(false)
+  const blinkCounterRef = useRef(0)
   const [index, setIndex] = useState(0)
 
   const total = games.length + 1
@@ -101,6 +105,8 @@ export function TitleCarousel({ games, onSelectGame }: TitleCarouselProps) {
   }, [index, games])
 
   const getBuffer = useCallback(() => {
+    blinkCounterRef.current += 1
+
     const leftPressed = input.isPressed('left')
     const rightPressed = input.isPressed('right')
     const confirmPressed = input.isPressed('confirm')
@@ -130,7 +136,7 @@ export function TitleCarousel({ games, onSelectGame }: TitleCarouselProps) {
     } else {
       renderPixelBufferToCanvas(buffer, canvas)
     }
-    drawPagerArrows(canvas)
+    drawPagerArrows(canvas, blinkCounterRef.current)
   }, [])
 
   useFaviconLoop(getBuffer, { fps: 8, previewCanvasRef, render })
