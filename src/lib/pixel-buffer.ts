@@ -12,6 +12,16 @@ export const GLOW_ACCENT = 5
 export const GLOW_ORANGE = 6
 export const GROUND = 7
 export const GROUND_ALT = 8
+export const CYAN = 9
+export const YELLOW = 10
+export const PURPLE = 11
+export const RED = 12
+export const BLUE = 13
+export const GLOW_CYAN = 14
+export const GLOW_YELLOW = 15
+export const GLOW_PURPLE = 16
+export const GLOW_RED = 17
+export const GLOW_BLUE = 18
 
 export type PixelBuffer = Uint8Array
 
@@ -93,6 +103,11 @@ const GLOW_VALUE_BY_SOLID_VALUE: Record<number, number> = {
   [ON]: GLOW_ON,
   [ACCENT]: GLOW_ACCENT,
   [ORANGE]: GLOW_ORANGE,
+  [CYAN]: GLOW_CYAN,
+  [YELLOW]: GLOW_YELLOW,
+  [PURPLE]: GLOW_PURPLE,
+  [RED]: GLOW_RED,
+  [BLUE]: GLOW_BLUE,
 }
 
 export function applyGlow(buffer: PixelBuffer): void {
