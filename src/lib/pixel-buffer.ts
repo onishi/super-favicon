@@ -6,8 +6,10 @@ export const LOGICAL_GRID_SIZE = GRID_SIZE / CHARACTER_SIZE
 export const OFF = 0
 export const ON = 1
 export const ACCENT = 2
-export const GLOW_ON = 3
-export const GLOW_ACCENT = 4
+export const RED = 3
+export const GLOW_ON = 4
+export const GLOW_ACCENT = 5
+export const GLOW_RED = 6
 
 export type PixelBuffer = Uint8Array
 
@@ -85,13 +87,19 @@ const GLOW_NEIGHBOR_OFFSETS: Array<[number, number]> = [
   [1, 0],
 ]
 
+const GLOW_VALUE_BY_SOLID_VALUE: Record<number, number> = {
+  [ON]: GLOW_ON,
+  [ACCENT]: GLOW_ACCENT,
+  [RED]: GLOW_RED,
+}
+
 export function applyGlow(buffer: PixelBuffer): void {
   const snapshot = buffer.slice()
   for (let y = 0; y < GRID_SIZE; y++) {
     for (let x = 0; x < GRID_SIZE; x++) {
       const value = snapshot[y * GRID_SIZE + x]
-      if (value !== ON && value !== ACCENT) continue
-      const glowValue = value === ACCENT ? GLOW_ACCENT : GLOW_ON
+      const glowValue = GLOW_VALUE_BY_SOLID_VALUE[value]
+      if (glowValue === undefined) continue
 
       for (const [dx, dy] of GLOW_NEIGHBOR_OFFSETS) {
         const nx = x + dx
