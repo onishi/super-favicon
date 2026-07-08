@@ -39,7 +39,6 @@ export function GameView({ game, onExit }: GameViewProps) {
 
   return (
     <div>
-      <h2>{game.name}</h2>
       <FaviconPreview ref={previewCanvasRef} />
       <TouchControls input={input} onReset={onExit} />
     </div>

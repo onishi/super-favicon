@@ -8,7 +8,7 @@ import { applyGlow, createPixelBuffer, GRID_SIZE, type PixelBuffer } from '../li
 import { codeToPixelBuffer } from '../lib/pixel-code'
 import { TITLE_LOGO_CODE } from '../lib/title-logo'
 import { FaviconPreview } from './FaviconPreview'
-import { GameMenu } from './GameMenu'
+import { TouchControls } from './TouchControls'
 
 const TITLE_BUFFER = codeToPixelBuffer(TITLE_LOGO_CODE)
 
@@ -148,8 +148,7 @@ export function TitleCarousel({ games, onSelectGame }: TitleCarouselProps) {
   return (
     <>
       <FaviconPreview ref={previewCanvasRef} />
-      <p>左右キーでゲームを選択、決定ボタンで開始</p>
-      <GameMenu games={games} onSelect={onSelectGame} selectedId={index === 0 ? null : games[index - 1].id} />
+      <TouchControls input={input} />
     </>
   )
 }

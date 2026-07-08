@@ -5,7 +5,7 @@ import './TouchControls.css'
 
 interface TouchControlsProps {
   input: InputState
-  onReset: () => void
+  onReset?: () => void
 }
 
 interface ControlButtonProps {
@@ -56,9 +56,11 @@ export function TouchControls({ input, onReset }: TouchControlsProps) {
         </div>
         <ControlButton action="confirm" input={input} className="touch-controls__confirm" />
       </div>
-      <button type="button" className="touch-controls__reset" onClick={onReset}>
-        RESET
-      </button>
+      {onReset && (
+        <button type="button" className="touch-controls__reset" onClick={onReset}>
+          RESET
+        </button>
+      )}
     </div>
   )
 }
