@@ -4,13 +4,45 @@ import { useFaviconLoop } from '../hooks/useFaviconLoop'
 import { useInputState } from '../hooks/useInputState'
 import { renderPixelBufferToCanvas } from '../lib/favicon-renderer'
 import { renderPaletteBufferToCanvas } from '../lib/palette'
-import { applyGlow, createPixelBuffer, type PixelBuffer } from '../lib/pixel-buffer'
+import { applyGlow, createPixelBuffer, GRID_SIZE, type PixelBuffer } from '../lib/pixel-buffer'
 import { codeToPixelBuffer } from '../lib/pixel-code'
 import { TITLE_LOGO_CODE } from '../lib/title-logo'
 import { FaviconPreview } from './FaviconPreview'
 import { GameMenu } from './GameMenu'
 
 const TITLE_BUFFER = codeToPixelBuffer(TITLE_LOGO_CODE)
+
+const PAGER_ARROW_COLOR = '#ffffff'
+const PAGER_CENTER_Y = Math.floor(GRID_SIZE / 2)
+
+// Leftward chevron anchored at the left edge (x=0); mirrored for the right edge below.
+const LEFT_ARROW_OFFSETS: Array<[number, number]> = [
+  [2, -2],
+  [1, -1],
+  [2, -1],
+  [0, 0],
+  [1, 0],
+  [2, 0],
+  [1, 1],
+  [2, 1],
+  [2, 2],
+]
+const RIGHT_ARROW_OFFSETS: Array<[number, number]> = LEFT_ARROW_OFFSETS.map(([dx, dy]) => [
+  GRID_SIZE - 1 - dx,
+  dy,
+])
+
+function drawPagerArrows(canvas: HTMLCanvasElement): void {
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return
+  ctx.fillStyle = PAGER_ARROW_COLOR
+  for (const [dx, dy] of LEFT_ARROW_OFFSETS) {
+    ctx.fillRect(dx, PAGER_CENTER_Y + dy, 1, 1)
+  }
+  for (const [dx, dy] of RIGHT_ARROW_OFFSETS) {
+    ctx.fillRect(dx, PAGER_CENTER_Y + dy, 1, 1)
+  }
+}
 
 function renderGamePreview(game: GameDefinition): PixelBuffer {
   const buffer = createPixelBuffer()
@@ -71,6 +103,7 @@ export function TitleCarousel({ games, onSelectGame }: TitleCarouselProps) {
     } else {
       renderPixelBufferToCanvas(buffer, canvas)
     }
+    drawPagerArrows(canvas)
   }, [])
 
   useFaviconLoop(getBuffer, { fps: 8, previewCanvasRef, render })
