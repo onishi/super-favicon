@@ -85,9 +85,10 @@ function renderGamePreview(game: GameDefinition): PixelBuffer {
 interface TitleCarouselProps {
   games: GameDefinition[]
   onSelectGame: (id: string) => void
+  isMaximized: boolean
 }
 
-export function TitleCarousel({ games, onSelectGame }: TitleCarouselProps) {
+export function TitleCarousel({ games, onSelectGame, isMaximized }: TitleCarouselProps) {
   const input = useInputState()
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
   const indexRef = useRef(0)
@@ -145,10 +146,15 @@ export function TitleCarousel({ games, onSelectGame }: TitleCarouselProps) {
 
   useFaviconLoop(getBuffer, { fps: 8, previewCanvasRef, render })
 
+  const resetToTitle = useCallback(() => {
+    indexRef.current = 0
+    setIndex(0)
+  }, [])
+
   return (
     <>
-      <FaviconPreview ref={previewCanvasRef} />
-      <TouchControls input={input} />
+      {isMaximized && <FaviconPreview ref={previewCanvasRef} />}
+      <TouchControls input={input} onReset={resetToTitle} />
     </>
   )
 }

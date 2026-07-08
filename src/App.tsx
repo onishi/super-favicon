@@ -10,6 +10,7 @@ import { getGameIdFromLocation, setGameIdInLocation } from './lib/game-url'
 function App() {
   const [selectedId, setSelectedId] = useState<string | null>(() => getGameIdFromLocation())
   const [isEditorOpen, setIsEditorOpen] = useState<boolean>(() => getEditorFlagFromLocation())
+  const [isMaximized, setIsMaximized] = useState(false)
 
   useEffect(() => {
     const handlePopState = () => {
@@ -45,16 +46,15 @@ function App() {
   const game = selectedId ? getGameById(selectedId) : undefined
 
   return (
-    <BrowserChrome>
+    <BrowserChrome isMaximized={isMaximized} onMaximize={() => setIsMaximized(true)} onClose={() => setIsMaximized(false)}>
       <main>
-        <h1>SUPER-FAVICON</h1>
         {game ? (
-          <GameView game={game} onExit={() => selectGame(null)} />
+          <GameView game={game} onExit={() => selectGame(null)} isMaximized={isMaximized} />
         ) : isEditorOpen ? (
           <PixelEditorView onExit={() => selectGame(null)} onStartLifeGame={startLifeGameFromEditor} />
         ) : (
           <>
-            <TitleCarousel games={GAMES} onSelectGame={selectGame} />
+            <TitleCarousel games={GAMES} onSelectGame={selectGame} isMaximized={isMaximized} />
             <button type="button" className="hidden-editor-button" onClick={openEditor} aria-label="ドット絵エディタ">
               ✎
             </button>
