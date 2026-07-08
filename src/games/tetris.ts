@@ -1,7 +1,9 @@
 import {
   ACCENT,
   BLUE,
+  CHARACTER_SIZE,
   CYAN,
+  FIELD_BG,
   GRID_SIZE,
   LOGICAL_GRID_SIZE,
   ON,
@@ -16,7 +18,19 @@ import type { GameDefinition } from './types'
 
 const FIELD_WIDTH = 10
 const FIELD_HEIGHT = LOGICAL_GRID_SIZE
-const FIELD_OFFSET_X = Math.floor((LOGICAL_GRID_SIZE - FIELD_WIDTH) / 2)
+// The field is shifted toward the left edge (rather than centered) so the
+// freed-up space on the right can fit a 4x4 "next piece" preview box.
+const FIELD_OFFSET_X = 1
+
+// 1px-wide vertical border lines drawn just outside the field's left/right
+// edges (in physical pixels) so the play area reads clearly against the
+// margins around it.
+const FIELD_LEFT_BORDER_X = FIELD_OFFSET_X * CHARACTER_SIZE - 1
+const FIELD_RIGHT_BORDER_X = (FIELD_OFFSET_X + FIELD_WIDTH) * CHARACTER_SIZE
+
+const NEXT_BOX_WIDTH = 4
+const NEXT_BOX_X = LOGICAL_GRID_SIZE - NEXT_BOX_WIDTH
+const NEXT_BOX_Y = 2
 
 const GRAVITY_INTERVAL = 14
 const SOFT_DROP_INTERVAL = 2
@@ -91,6 +105,7 @@ export const tetrisGame: GameDefinition = {
   create: () => {
     let grid: Uint8Array
     let pieceType: number
+    let nextPieceType: number
     let rotation: number
     let pieceX: number
     let pieceY: number
@@ -117,8 +132,11 @@ export const tetrisGame: GameDefinition = {
       return false
     }
 
+    const randomPieceType = (): number => Math.floor(Math.random() * PIECES.length)
+
     const spawnPiece = () => {
-      pieceType = Math.floor(Math.random() * PIECES.length)
+      pieceType = nextPieceType
+      nextPieceType = randomPieceType()
       rotation = 0
       pieceX = SPAWN_X
       pieceY = 0
@@ -178,6 +196,7 @@ export const tetrisGame: GameDefinition = {
       blinkCounter = 0
       leftRepeatCount = 0
       rightRepeatCount = 0
+      nextPieceType = randomPieceType()
       spawnPiece()
     }
     reset()
@@ -241,8 +260,13 @@ export const tetrisGame: GameDefinition = {
         for (let y = 0; y < FIELD_HEIGHT; y++) {
           for (let x = 0; x < FIELD_WIDTH; x++) {
             const color = grid[y * FIELD_WIDTH + x]
-            if (color !== 0) setCharacter(buffer, FIELD_OFFSET_X + x, y, color)
+            setCharacter(buffer, FIELD_OFFSET_X + x, y, color !== 0 ? color : FIELD_BG)
           }
+        }
+
+        for (let py = 0; py < GRID_SIZE; py++) {
+          setPixel(buffer, FIELD_LEFT_BORDER_X, py, ON)
+          setPixel(buffer, FIELD_RIGHT_BORDER_X, py, ON)
         }
 
         if (!isGameOver) {
@@ -251,6 +275,18 @@ export const tetrisGame: GameDefinition = {
             const absY = pieceY + cy
             if (absY < 0) continue
             setCharacter(buffer, FIELD_OFFSET_X + pieceX + cx, absY, color)
+          }
+        }
+
+        if (!isGameOver) {
+          for (let y = 0; y < NEXT_BOX_WIDTH; y++) {
+            for (let x = 0; x < NEXT_BOX_WIDTH; x++) {
+              setCharacter(buffer, NEXT_BOX_X + x, NEXT_BOX_Y + y, FIELD_BG)
+            }
+          }
+          const nextColor = PIECE_COLORS[nextPieceType]
+          for (const [cx, cy] of cellsFor(nextPieceType, 0)) {
+            setCharacter(buffer, NEXT_BOX_X + cx, NEXT_BOX_Y + cy, nextColor)
           }
         }
 
