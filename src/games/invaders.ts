@@ -26,6 +26,9 @@ const DANGER_Y = PLAYER_Y - 2
 
 const FORMATION_STEP_INTERVAL = 18
 const FORMATION_MIN_STEP_INTERVAL = 6
+// The last surviving enemy speeds up well past the usual per-wave floor, for
+// a classic "final invader panic" moment.
+const LAST_ENEMY_STEP_INTERVAL = 4
 const MOVE_REPEAT_INTERVAL = 5
 
 const PLAYER_BULLET_SPEED = 2
@@ -189,12 +192,16 @@ export const invadersGame: GameDefinition = {
           }
         }
 
-        if (aliveGrid.every((alive) => !alive)) {
+        const aliveCount = aliveGrid.reduce((count, alive) => count + (alive ? 1 : 0), 0)
+        if (aliveCount === 0) {
           waveCount += 1
           spawnWave()
         } else {
           formationFrameCount += 1
-          const stepInterval = Math.max(FORMATION_MIN_STEP_INTERVAL, FORMATION_STEP_INTERVAL - waveCount * 2)
+          const stepInterval =
+            aliveCount === 1
+              ? LAST_ENEMY_STEP_INTERVAL
+              : Math.max(FORMATION_MIN_STEP_INTERVAL, FORMATION_STEP_INTERVAL - waveCount * 2)
           if (formationFrameCount >= stepInterval) {
             formationFrameCount = 0
             const atRightEdge = formationDirection === 1 && formationBaseX >= ENEMY_MAX_X
