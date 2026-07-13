@@ -12,11 +12,18 @@ const ROOM_MAX_SIZE = 4
 const ROOM_PLACEMENT_ATTEMPTS = 150
 const FLOOR_GENERATION_RETRIES = 5
 
-const MAX_HP = 5
+const BASE_MAX_HP = 5
+// Clearing a floor raises the HP ceiling (and heals by the same amount), so
+// deeper runs are more sustainable even without items.
+const HP_INCREASE_PER_FLOOR = 1
 const PLAYER_ATTACK = 1
 const ENEMY_HP = 2
 const ENEMY_ATTACK = 1
 const BASE_ENEMY_COUNT = 2
+// Waiting with no enemy adjacent counts as resting: every REST_HEAL_INTERVAL
+// consecutive safe waits recovers 1 HP. Moving, attacking, or having an
+// enemy nearby resets the streak.
+const REST_HEAL_INTERVAL = 3
 
 const FLOOR = 1
 
@@ -55,12 +62,14 @@ export const roguelikeGame: GameDefinition = {
     let playerX: number
     let playerY: number
     let playerHp: number
+    let maxHp: number
     let stairsX: number
     let stairsY: number
     let enemies: Enemy[]
     let depth: number
     let floorsCleared: number
     let isGameOver: boolean
+    let restStreak = 0
     let upWasPressed = false
     let downWasPressed = false
     let leftWasPressed = false
@@ -158,9 +167,11 @@ export const roguelikeGame: GameDefinition = {
     const reset = () => {
       depth = 1
       floorsCleared = 0
-      playerHp = MAX_HP
+      maxHp = BASE_MAX_HP
+      playerHp = maxHp
       isGameOver = false
       blinkCounter = 0
+      restStreak = 0
       generateFloor()
     }
     reset()
@@ -225,6 +236,7 @@ export const roguelikeGame: GameDefinition = {
         let turnTaken = false
 
         if (dx !== 0 || dy !== 0) {
+          restStreak = 0
           const nx = playerX + dx
           const ny = playerY + dy
           if (isFloor(nx, ny)) {
@@ -240,13 +252,28 @@ export const roguelikeGame: GameDefinition = {
               if (nx === stairsX && ny === stairsY) {
                 depth += 1
                 floorsCleared += 1
+                maxHp += HP_INCREASE_PER_FLOOR
+                playerHp = Math.min(maxHp, playerHp + HP_INCREASE_PER_FLOOR)
                 generateFloor()
                 turnTaken = false
               }
             }
           }
         } else if (confirmPressed && !confirmWasPressed) {
-          // Wait a turn in place.
+          // Wait a turn in place. Resting while no enemy is adjacent slowly
+          // heals; being threatened (or already full HP) resets the streak.
+          const isThreatened = enemies.some(
+            (e) => e.alive && Math.abs(e.x - playerX) + Math.abs(e.y - playerY) === 1,
+          )
+          if (!isThreatened && playerHp < maxHp) {
+            restStreak += 1
+            if (restStreak >= REST_HEAL_INTERVAL) {
+              playerHp = Math.min(maxHp, playerHp + 1)
+              restStreak = 0
+            }
+          } else {
+            restStreak = 0
+          }
           turnTaken = true
         }
         confirmWasPressed = confirmPressed
@@ -282,7 +309,7 @@ export const roguelikeGame: GameDefinition = {
 
         setCharacter(buffer, playerX, playerY + HUD_HEIGHT, ON)
 
-        for (let i = 0; i < MAX_HP; i++) {
+        for (let i = 0; i < Math.min(maxHp, LOGICAL_GRID_SIZE); i++) {
           if (i < playerHp) setCharacter(buffer, i, 0, ORANGE)
         }
 

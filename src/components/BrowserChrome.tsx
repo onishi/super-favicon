@@ -8,13 +8,14 @@ interface BrowserChromeProps {
   children: ReactNode
   isMaximized: boolean
   onMaximize: () => void
-  onClose: () => void
+  onMinimize: () => void
+  onCloseToTitle: () => void
 }
 
 // A fake browser window wrapped around the whole app: since the actual tab
 // title/favicon only visibly update on desktop, this mirrors both in-page so
 // the "favicon as game screen" concept reads clearly everywhere.
-export function BrowserChrome({ children, isMaximized, onMaximize, onClose }: BrowserChromeProps) {
+export function BrowserChrome({ children, isMaximized, onMaximize, onMinimize, onCloseToTitle }: BrowserChromeProps) {
   const [title, setTitle] = useState(document.title)
   const [faviconHref, setFaviconHref] = useState('')
 
@@ -36,14 +37,14 @@ export function BrowserChrome({ children, isMaximized, onMaximize, onClose }: Br
           <button
             type="button"
             className="browser-chrome__dot browser-chrome__dot--red"
-            aria-label="閉じる"
-            onClick={onClose}
+            aria-label="タイトルへ戻る"
+            onClick={onCloseToTitle}
           />
           <button
             type="button"
             className="browser-chrome__dot browser-chrome__dot--yellow"
             aria-label="しまう"
-            onClick={onClose}
+            onClick={onMinimize}
           />
           <button
             type="button"
