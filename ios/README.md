@@ -9,11 +9,12 @@ SUPER-FAVICON 専用のブラウザアプリ。画面の上半分に現在のペ
   - 信号機風ドット（赤を押すとホームへ戻る。黄・緑は飾り）と、小さい Favicon＋タイトルのタブ
   - ピル型の URL バー（こちらは編集して Enter で移動できる。https のときは 🔒 を表示）
   - 配色は `src/index.css` の CSS 変数と同じ値で、ライト/ダークモードに追従する
-- **残り**: WKWebView によるページ本体
+- **残り**: WKWebView によるページ本体（下に引っ張ると再読み込みできる Pull to Refresh 付き）
 
-Favicon とタイトルはページ側で動的に書き換えられる（SUPER-FAVICON はこれでゲーム画面をアニメーションさせる）ため、300ms 間隔で JavaScript を評価してポーリングし、data URL の favicon をその場でデコードして表示する。
+Favicon とタイトルはページ側で動的に書き換えられる（SUPER-FAVICON はこれでゲーム画面をアニメーションさせる）ため、300ms 間隔で JavaScript を評価してポーリングし、data URL の favicon をその場でデコードして表示する。SVG の favicon（例: SUPER-FAVICON の初期表示 `favicon.svg`）は UIImage でデコードできないため、ページ内で canvas に描いて PNG data URL に変換してから受け取る。
 
 - 起動時のページ: https://super-favicon.pages.dev/
+- ホーム画面での表示名: SuperFavicon
 - Bundle ID: `com.superfavicon.browser`（super-favicon.com ドメイン由来。ハイフンは ID に使えないため除去）
 - 対応 OS: iOS 17.0+
 
@@ -46,5 +47,4 @@ xcodebuild -project SuperFaviconBrowser.xcodeproj \
 
 ## 制限事項
 
-- SVG の favicon（例: SUPER-FAVICON の初期表示 `favicon.svg`）はデコード非対応。JS が動き出して PNG data URL に切り替わると表示される
 - 実機で動かす場合は Xcode の Signing でチームを設定すること

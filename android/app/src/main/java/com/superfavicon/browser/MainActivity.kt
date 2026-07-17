@@ -17,6 +17,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import org.json.JSONObject
 import org.json.JSONTokener
 import java.net.HttpURLConnection
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var titleView: TextView
     private lateinit var lockView: TextView
     private lateinit var urlView: EditText
+    private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var webView: WebView
 
     private val handler = Handler(Looper.getMainLooper())
@@ -55,7 +57,13 @@ class MainActivity : AppCompatActivity() {
         titleView = findViewById(R.id.title_view)
         lockView = findViewById(R.id.lock_view)
         urlView = findViewById(R.id.url_view)
+        swipeRefresh = findViewById(R.id.swipe_refresh)
         webView = findViewById(R.id.web_view)
+
+        // Pull to Refresh: 現在のページを再読み込みする
+        swipeRefresh.setOnRefreshListener {
+            webView.reload()
+        }
 
         // 赤ドット（Web版の「タイトルへ戻る」に相当）はホームへ戻る
         findViewById<android.view.View>(R.id.dot_home).setOnClickListener {
@@ -73,6 +81,10 @@ class MainActivity : AppCompatActivity() {
                 }
                 lockView.visibility =
                     if (url.startsWith("https://")) android.view.View.VISIBLE else android.view.View.GONE
+            }
+
+            override fun onPageFinished(view: WebView, url: String) {
+                swipeRefresh.isRefreshing = false
             }
         }
 
@@ -202,14 +214,43 @@ class MainActivity : AppCompatActivity() {
          * ページから document.title と favicon の href を取り出す。
          * favicon はページ側で動的に差し替えられるため、最後に現れた link[rel~=icon] を採用し、
          * 見つからなければ /favicon.ico にフォールバックする。
+         * SVG の favicon は BitmapFactory でデコードできないため、ページ内で canvas に描いて
+         * PNG data URL に変換して返す。変換は画像読み込み待ちで非同期になるので、
+         * 結果をグローバルにキャッシュして次回以降のポーリングで拾う。
          */
         private val PAGE_INFO_JS = """
             (function () {
               var links = document.querySelectorAll('link[rel~="icon"]');
-              var href = links.length > 0
-                ? links[links.length - 1].href
-                : new URL('/favicon.ico', location.href).href;
-              return JSON.stringify({ title: document.title, icon: href });
+              var href = '';
+              if (links.length > 0) {
+                href = links[links.length - 1].href;
+              } else {
+                // about:blank など base URL が不正な間は new URL が例外を投げる
+                try { href = new URL('/favicon.ico', location.href).href; } catch (e) {}
+              }
+              var path = href.split('?')[0].split('#')[0].toLowerCase();
+              var icon = href;
+              if (href.slice(0, 14).toLowerCase() === 'data:image/svg' || path.slice(-4) === '.svg') {
+                var cache = window.__superFaviconSvgPng || (window.__superFaviconSvgPng = {});
+                if (cache.src !== href) {
+                  cache.src = href;
+                  cache.png = '';
+                  var img = new Image();
+                  if (href.slice(0, 5) !== 'data:') img.crossOrigin = 'anonymous';
+                  img.onload = function () {
+                    var canvas = document.createElement('canvas');
+                    canvas.width = 128;
+                    canvas.height = 128;
+                    canvas.getContext('2d').drawImage(img, 0, 0, 128, 128);
+                    try {
+                      if (cache.src === href) cache.png = canvas.toDataURL('image/png');
+                    } catch (e) {}
+                  };
+                  img.src = href;
+                }
+                icon = cache.png;
+              }
+              return JSON.stringify({ title: document.title, icon: icon });
             })()
         """.trimIndent()
     }
