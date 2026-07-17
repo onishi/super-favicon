@@ -15,7 +15,7 @@ Favicon とタイトルはページ側で動的に書き換えられる（SUPER-
 
 - 起動時のページ: https://super-favicon.com/
 - ホーム画面での表示名: SuperFavicon
-- Bundle ID: `com.superfavicon.browser`（super-favicon.com ドメイン由来。ハイフンは ID に使えないため除去）
+- Bundle ID: `com.superfavicon`（super-favicon.com ドメイン由来。ハイフンは ID に使えないため除去）
 - 対応 OS: iOS 17.0+
 
 ## ビルド

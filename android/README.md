@@ -15,7 +15,7 @@ Favicon とタイトルはページ側で動的に書き換えられる（SUPER-
 
 - 起動時のページ: https://super-favicon.com/
 - ホーム画面での表示名: SuperFavicon
-- Application ID: `com.superfavicon.browser`（super-favicon.com ドメイン由来。Java パッケージにハイフンが使えないため除去）
+- Application ID: `com.superfavicon`（super-favicon.com ドメイン由来。Java パッケージにハイフンが使えないため除去）
 - 対応 OS: Android 8.0 (API 26)+
 
 ## ビルド
@@ -36,6 +36,6 @@ cd android
 
 ## 構成ファイル
 
-- `app/src/main/java/com/superfavicon/browser/MainActivity.kt` — WebView の設定、favicon・タイトルのポーリングとデコード、URL バー
+- `app/src/main/java/com/superfavicon/MainActivity.kt` — WebView の設定、favicon・タイトルのポーリングとデコード、URL バー
 - `app/src/main/res/layout/activity_main.xml` — 画面レイアウト（Guideline 50% で上半分を favicon 領域に）
 - `app/src/main/res/drawable/ic_launcher_foreground.xml` — アプリアイコン（地球儀のドット絵。`scripts/generate-app-icons.py` で生成）

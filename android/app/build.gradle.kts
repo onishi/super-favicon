@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.superfavicon.browser"
+    namespace = "com.superfavicon"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.superfavicon.browser"
+        applicationId = "com.superfavicon"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

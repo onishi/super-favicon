@@ -1,4 +1,4 @@
-package com.superfavicon.browser
+package com.superfavicon
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
