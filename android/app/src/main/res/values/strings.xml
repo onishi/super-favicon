@@ -3,4 +3,6 @@
     <string name="app_name">SuperFaviconBrowser</string>
     <string name="url_hint">URL を入力</string>
     <string name="favicon_description">現在のページの Favicon</string>
+    <string name="go_home_description">ホームへ戻る</string>
+    <string name="lock_icon">🔒</string>
 </resources>

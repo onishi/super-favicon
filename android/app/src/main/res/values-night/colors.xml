@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="browser_bg">#16171D</color>
+    <color name="browser_code_bg">#1F2028</color>
+    <color name="browser_border">#2E303A</color>
+    <color name="browser_text">#9CA3AF</color>
+    <color name="browser_text_h">#F3F4F6</color>
+</resources>

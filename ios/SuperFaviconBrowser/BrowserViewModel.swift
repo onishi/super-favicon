@@ -38,6 +38,11 @@ final class BrowserViewModel: ObservableObject {
         startPolling()
     }
 
+    /// 赤ドット（Web版の「タイトルへ戻る」に相当）: ホームへ戻る
+    func goHome() {
+        webView.load(URLRequest(url: Self.homeURL))
+    }
+
     func navigate(to input: String) {
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }

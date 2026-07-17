@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		5094C946F4489C824D202F46 /* SuperFaviconBrowserApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6E7285809D8CD7CF5E62DB /* SuperFaviconBrowserApp.swift */; };
+		816A669A77C2089F04E4A701 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD6723AF56A616CB807950F /* Theme.swift */; };
 		C6CC498F0A1888ABB8AE0C57 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93C5E34D75BF6FC11CA85DD /* WebView.swift */; };
 		CDDE29EC166275EBD24B0E50 /* BrowserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3E070AB49B6F4EFF212BB8 /* BrowserViewModel.swift */; };
 		F8EE6A566A1C40AE4B2434FC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E8A8A05B8FC3764EAEC979F /* ContentView.swift */; };
@@ -16,6 +17,7 @@
 /* Begin PBXFileReference section */
 		0B6E7285809D8CD7CF5E62DB /* SuperFaviconBrowserApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperFaviconBrowserApp.swift; sourceTree = "<group>"; };
 		0E8A8A05B8FC3764EAEC979F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		0FD6723AF56A616CB807950F /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		836280BFF39FD631514058DC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8B84D306D0CAD7598A569BCC /* SuperFaviconBrowser.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SuperFaviconBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A93C5E34D75BF6FC11CA85DD /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
@@ -46,6 +48,7 @@
 				0E8A8A05B8FC3764EAEC979F /* ContentView.swift */,
 				836280BFF39FD631514058DC /* Info.plist */,
 				0B6E7285809D8CD7CF5E62DB /* SuperFaviconBrowserApp.swift */,
+				0FD6723AF56A616CB807950F /* Theme.swift */,
 				A93C5E34D75BF6FC11CA85DD /* WebView.swift */,
 			);
 			path = SuperFaviconBrowser;
@@ -109,6 +112,7 @@
 				CDDE29EC166275EBD24B0E50 /* BrowserViewModel.swift in Sources */,
 				F8EE6A566A1C40AE4B2434FC /* ContentView.swift in Sources */,
 				5094C946F4489C824D202F46 /* SuperFaviconBrowserApp.swift in Sources */,
+				816A669A77C2089F04E4A701 /* Theme.swift in Sources */,
 				C6CC498F0A1888ABB8AE0C57 /* WebView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

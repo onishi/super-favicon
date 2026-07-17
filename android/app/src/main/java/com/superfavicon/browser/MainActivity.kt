@@ -26,7 +26,9 @@ import java.util.concurrent.Executors
 class MainActivity : AppCompatActivity() {
 
     private lateinit var faviconView: ImageView
+    private lateinit var tabFaviconView: ImageView
     private lateinit var titleView: TextView
+    private lateinit var lockView: TextView
     private lateinit var urlView: EditText
     private lateinit var webView: WebView
 
@@ -49,9 +51,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         faviconView = findViewById(R.id.favicon_view)
+        tabFaviconView = findViewById(R.id.tab_favicon_view)
         titleView = findViewById(R.id.title_view)
+        lockView = findViewById(R.id.lock_view)
         urlView = findViewById(R.id.url_view)
         webView = findViewById(R.id.web_view)
+
+        // 赤ドット（Web版の「タイトルへ戻る」に相当）はホームへ戻る
+        findViewById<android.view.View>(R.id.dot_home).setOnClickListener {
+            webView.loadUrl(HOME_URL)
+        }
 
         webView.settings.apply {
             javaScriptEnabled = true
@@ -62,6 +71,8 @@ class MainActivity : AppCompatActivity() {
                 if (!urlView.hasFocus()) {
                     urlView.setText(url)
                 }
+                lockView.visibility =
+                    if (url.startsWith("https://")) android.view.View.VISIBLE else android.view.View.GONE
             }
         }
 
@@ -175,8 +186,12 @@ class MainActivity : AppCompatActivity() {
 
     /** 32x32 のドット絵が滲まないよう、ニアレストネイバー（フィルタなし）で拡大表示する */
     private fun showFavicon(bitmap: Bitmap) {
-        val drawable = BitmapDrawable(resources, bitmap).apply { setFilterBitmap(false) }
-        faviconView.setImageDrawable(drawable)
+        faviconView.setImageDrawable(
+            BitmapDrawable(resources, bitmap).apply { setFilterBitmap(false) }
+        )
+        tabFaviconView.setImageDrawable(
+            BitmapDrawable(resources, bitmap).apply { setFilterBitmap(false) }
+        )
     }
 
     companion object {
