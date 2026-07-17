@@ -17,18 +17,19 @@ interface GameViewProps {
 export function GameView({ game, onExit, isMaximized }: GameViewProps) {
   const previewCanvasRef = useRef<HTMLCanvasElement>(null)
   const input = useInputState()
-  const { getBuffer, getScore } = useGameRuntime(game, input)
+  const { getBuffer, getScore, getStatusText } = useGameRuntime(game, input)
 
   useFaviconLoop(getBuffer, { fps: 12, previewCanvasRef })
 
   useEffect(() => {
     const updateTitle = () => {
-      document.title = `[${getScore()}] ${game.name}`
+      const statusText = getStatusText()
+      document.title = `[${statusText ?? getScore()}] ${game.name}`
     }
     updateTitle()
     const interval = setInterval(updateTitle, TITLE_UPDATE_INTERVAL_MS)
     return () => clearInterval(interval)
-  }, [getScore, game.name])
+  }, [getScore, getStatusText, game.name])
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

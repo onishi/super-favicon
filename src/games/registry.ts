@@ -5,6 +5,7 @@ import { puyoGame } from './puyo'
 import { roguelikeGame } from './roguelike'
 import { snakeGame } from './snake'
 import { tetrisGame } from './tetris'
+import { timerGame } from './timer'
 import type { GameDefinition } from './types'
 
 export const GAMES: GameDefinition[] = [
@@ -15,6 +16,7 @@ export const GAMES: GameDefinition[] = [
   puyoGame,
   invadersGame,
   roguelikeGame,
+  timerGame,
 ]
 
 export function getGameById(id: string): GameDefinition | undefined {
