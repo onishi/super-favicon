@@ -6,7 +6,7 @@ import WebKit
 /// 一定間隔で link[rel~=icon] を読み直して大きく表示する。
 @MainActor
 final class BrowserViewModel: NSObject, ObservableObject {
-    static let homeURL = URL(string: "https://super-favicon.pages.dev/")!
+    static let homeURL = URL(string: "https://super-favicon.com/")!
     private static let pollInterval: TimeInterval = 0.3
 
     let webView: WKWebView

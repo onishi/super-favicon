@@ -13,7 +13,7 @@ SUPER-FAVICON 専用のブラウザアプリ。画面の上半分に現在のペ
 
 Favicon とタイトルはページ側で動的に書き換えられる（SUPER-FAVICON はこれでゲーム画面をアニメーションさせる）ため、300ms 間隔で JavaScript を評価してポーリングし、data URL の favicon をその場でデコードして表示する。SVG の favicon（例: SUPER-FAVICON の初期表示 `favicon.svg`）は UIImage でデコードできないため、ページ内で canvas に描いて PNG data URL に変換してから受け取る。
 
-- 起動時のページ: https://super-favicon.pages.dev/
+- 起動時のページ: https://super-favicon.com/
 - ホーム画面での表示名: SuperFavicon
 - Bundle ID: `com.superfavicon.browser`（super-favicon.com ドメイン由来。ハイフンは ID に使えないため除去）
 - 対応 OS: iOS 17.0+

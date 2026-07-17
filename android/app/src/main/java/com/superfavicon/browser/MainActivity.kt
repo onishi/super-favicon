@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val HOME_URL = "https://super-favicon.pages.dev/"
+        private const val HOME_URL = "https://super-favicon.com/"
         private const val POLL_INTERVAL_MS = 300L
 
         /**
