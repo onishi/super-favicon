@@ -12,7 +12,7 @@ targets:
     info:
       path: SuperFaviconBrowser/Info.plist
       properties:
-        CFBundleDisplayName: SuperFaviconBrowser
+        CFBundleDisplayName: SuperFavicon
         UILaunchScreen: {}
         NSAppTransportSecurity:
           # ブラウザとして http のサイトも開けるようにする
