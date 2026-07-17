@@ -5,14 +5,13 @@ struct ContentView: View {
     @FocusState private var urlFieldFocused: Bool
 
     var body: some View {
-        GeometryReader { geometry in
-            VStack(spacing: 0) {
-                faviconArea
-                    .frame(height: geometry.size.height / 2)
-                tabBar
-                toolbar
-                WebView(webView: model.webView)
-            }
+        VStack(spacing: 0) {
+            faviconArea
+                .frame(maxHeight: .infinity)
+            tabBar
+            toolbar
+            WebView(webView: model.webView)
+                .frame(maxHeight: .infinity)
         }
         .background(Theme.bg)
         .onChange(of: urlFieldFocused) { _, focused in
@@ -20,7 +19,7 @@ struct ContentView: View {
         }
     }
 
-    /// 上半分いっぱいに favicon をドット絵のまま（補間なしで）拡大表示する
+    /// バーの上側いっぱいに favicon をドット絵のまま（補間なしで）拡大表示する
     private var faviconArea: some View {
         Group {
             if let favicon = model.favicon {
