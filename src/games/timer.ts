@@ -82,6 +82,8 @@ export const timerGame: GameDefinition = {
     let blinkCounter = 0
     let upWasPressed = false
     let downWasPressed = false
+    let leftWasPressed = false
+    let rightWasPressed = false
     let confirmWasPressed = false
 
     const reset = () => {
@@ -96,11 +98,20 @@ export const timerGame: GameDefinition = {
       update: (input) => {
         const upPressed = input.isPressed('up')
         const downPressed = input.isPressed('down')
+        const leftPressed = input.isPressed('left')
+        const rightPressed = input.isPressed('right')
         const confirmPressed = input.isPressed('confirm')
 
         if (phase === 'select') {
-          if (upPressed && !upWasPressed) selectedMinutes = Math.min(MAX_MINUTES, selectedMinutes + 1)
-          else if (downPressed && !downWasPressed) selectedMinutes = Math.max(MIN_MINUTES, selectedMinutes - 1)
+          // Up/right raise the minute count, down/left lower it; both wrap
+          // around at the 1–10 range instead of clamping.
+          const increase = (upPressed && !upWasPressed) || (rightPressed && !rightWasPressed)
+          const decrease = (downPressed && !downWasPressed) || (leftPressed && !leftWasPressed)
+          if (increase) {
+            selectedMinutes = selectedMinutes >= MAX_MINUTES ? MIN_MINUTES : selectedMinutes + 1
+          } else if (decrease) {
+            selectedMinutes = selectedMinutes <= MIN_MINUTES ? MAX_MINUTES : selectedMinutes - 1
+          }
 
           if (confirmPressed && !confirmWasPressed) {
             phase = 'running'
@@ -126,6 +137,8 @@ export const timerGame: GameDefinition = {
 
         upWasPressed = upPressed
         downWasPressed = downPressed
+        leftWasPressed = leftPressed
+        rightWasPressed = rightPressed
         confirmWasPressed = confirmPressed
       },
       render: (buffer) => {
