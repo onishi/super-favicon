@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SUPER-FAVICON Viewer bookmarklet</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 3rem auto; padding: 0 1rem; line-height: 1.8; }
+  a.bookmarklet { display: inline-block; padding: .6rem 1.2rem; border: 2px solid #333; border-radius: 8px; font-weight: bold; text-decoration: none; color: #111; background: #ffe066; }
+  textarea { width: 100%; height: 8rem; font-family: monospace; font-size: 12px; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #111; color: #eee; }
+    a.bookmarklet { border-color: #eee; }
+  }
+</style>
+</head>
+<body>
+<h1>SUPER-FAVICON Viewer</h1>
+<p>下のリンクをブックマークバーにドラッグ＆ドロップして登録してください。</p>
+<p><a class="bookmarklet" href="javascript:(()%20%3D%3E%20%7Bconst%20KEY%20%3D%20'__superFaviconViewer'%3Bconst%20prev%20%3D%20window%5BKEY%5D%3Bif%20(prev%20%26%26%20prev.win%20%26%26%20!prev.win.closed)%20%7BclearInterval(prev.timer)%3Bprev.win.close()%3Bwindow%5BKEY%5D%20%3D%20null%3Breturn%3B%7Dconst%20getIconHref%20%3D%20()%20%3D%3E%20%7Blet%20href%20%3D%20''%3Bdocument.querySelectorAll('link%5Brel~%3D%22icon%22%5D').forEach((l)%20%3D%3E%20%7Bif%20(l.href)%20href%20%3D%20l.href%3B%7D)%3Breturn%20href%20%7C%7C%20location.origin%20%2B%20'%2Ffavicon.ico'%3B%7D%3Bconst%20win%20%3D%20window.open(''%2C%20'_blank'%2C%20'width%3D512%2Cheight%3D560')%3Bif%20(!win)%20%7Balert('%E3%83%9D%E3%83%83%E3%83%97%E3%82%A2%E3%83%83%E3%83%97%E3%81%8C%E3%83%96%E3%83%AD%E3%83%83%E3%82%AF%E3%81%95%E3%82%8C%E3%81%BE%E3%81%97%E3%81%9F%E3%80%82%E3%81%93%E3%81%AE%E3%82%B5%E3%82%A4%E3%83%88%E3%81%AE%E3%83%9D%E3%83%83%E3%83%97%E3%82%A2%E3%83%83%E3%83%97%E3%82%92%E8%A8%B1%E5%8F%AF%E3%81%97%E3%81%A6%E3%81%8F%E3%81%A0%E3%81%95%E3%81%84%E3%80%82')%3Breturn%3B%7Dconst%20d%20%3D%20win.document%3Bd.title%20%3D%20document.title%3Bd.body.style.cssText%20%3D'margin%3A0%3Bbackground%3A%23111%3Bdisplay%3Aflex%3Balign-items%3Acenter%3Bjustify-content%3Acenter%3Bheight%3A100vh%3B'%3Bconst%20img%20%3D%20d.createElement('img')%3Bimg.style.cssText%20%3D'width%3Amin(100vw%2C100vh)%3Bheight%3Amin(100vw%2C100vh)%3Bimage-rendering%3Apixelated%3B'%3Bimg.src%20%3D%20getIconHref()%3Bd.body.appendChild(img)%3Bconst%20timer%20%3D%20setInterval(()%20%3D%3E%20%7Bif%20(win.closed)%20%7BclearInterval(timer)%3Bwindow%5BKEY%5D%20%3D%20null%3Breturn%3B%7Dconst%20href%20%3D%20getIconHref()%3Bif%20(img.src%20!%3D%3D%20href)%20img.src%20%3D%20href%3Bif%20(d.title%20!%3D%3D%20document.title)%20d.title%20%3D%20document.title%3B%7D%2C%20100)%3Bwindow%5BKEY%5D%20%3D%20%7B%20win%2C%20timer%20%7D%3B%7D)()%3B">🔍 SUPER-FAVICON Viewer</a></p>
+<p>favicon を巨大表示したいページでブックマークをクリックすると、別ウィンドウに favicon がドット絵拡大で表示されます。favicon のアニメーションにも追従します。もう一度クリックするとウィンドウが閉じます。</p>
+<details>
+<summary>URL を手動でコピーする場合</summary>
+<textarea readonly>javascript:(()%20%3D%3E%20%7Bconst%20KEY%20%3D%20'__superFaviconViewer'%3Bconst%20prev%20%3D%20window%5BKEY%5D%3Bif%20(prev%20%26%26%20prev.win%20%26%26%20!prev.win.closed)%20%7BclearInterval(prev.timer)%3Bprev.win.close()%3Bwindow%5BKEY%5D%20%3D%20null%3Breturn%3B%7Dconst%20getIconHref%20%3D%20()%20%3D%3E%20%7Blet%20href%20%3D%20''%3Bdocument.querySelectorAll('link%5Brel~%3D%22icon%22%5D').forEach((l)%20%3D%3E%20%7Bif%20(l.href)%20href%20%3D%20l.href%3B%7D)%3Breturn%20href%20%7C%7C%20location.origin%20%2B%20'%2Ffavicon.ico'%3B%7D%3Bconst%20win%20%3D%20window.open(''%2C%20'_blank'%2C%20'width%3D512%2Cheight%3D560')%3Bif%20(!win)%20%7Balert('%E3%83%9D%E3%83%83%E3%83%97%E3%82%A2%E3%83%83%E3%83%97%E3%81%8C%E3%83%96%E3%83%AD%E3%83%83%E3%82%AF%E3%81%95%E3%82%8C%E3%81%BE%E3%81%97%E3%81%9F%E3%80%82%E3%81%93%E3%81%AE%E3%82%B5%E3%82%A4%E3%83%88%E3%81%AE%E3%83%9D%E3%83%83%E3%83%97%E3%82%A2%E3%83%83%E3%83%97%E3%82%92%E8%A8%B1%E5%8F%AF%E3%81%97%E3%81%A6%E3%81%8F%E3%81%A0%E3%81%95%E3%81%84%E3%80%82')%3Breturn%3B%7Dconst%20d%20%3D%20win.document%3Bd.title%20%3D%20document.title%3Bd.body.style.cssText%20%3D'margin%3A0%3Bbackground%3A%23111%3Bdisplay%3Aflex%3Balign-items%3Acenter%3Bjustify-content%3Acenter%3Bheight%3A100vh%3B'%3Bconst%20img%20%3D%20d.createElement('img')%3Bimg.style.cssText%20%3D'width%3Amin(100vw%2C100vh)%3Bheight%3Amin(100vw%2C100vh)%3Bimage-rendering%3Apixelated%3B'%3Bimg.src%20%3D%20getIconHref()%3Bd.body.appendChild(img)%3Bconst%20timer%20%3D%20setInterval(()%20%3D%3E%20%7Bif%20(win.closed)%20%7BclearInterval(timer)%3Bwindow%5BKEY%5D%20%3D%20null%3Breturn%3B%7Dconst%20href%20%3D%20getIconHref()%3Bif%20(img.src%20!%3D%3D%20href)%20img.src%20%3D%20href%3Bif%20(d.title%20!%3D%3D%20document.title)%20d.title%20%3D%20document.title%3B%7D%2C%20100)%3Bwindow%5BKEY%5D%20%3D%20%7B%20win%2C%20timer%20%7D%3B%7D)()%3B</textarea>
+</details>
+</body>
+</html>

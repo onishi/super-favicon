@@ -15,6 +15,16 @@ Favicon を動的に書き換えることで、Favicon の画像を 32x32 ピク
 - **Mobile**: ブラウザ側で Favicon の変化が視認できないため、代わりにページ全体を包む擬似ブラウザUI（`BrowserChrome`）のタブ内にFaviconを縮小表示する（Favicon への書き込み自体は継続する）
   - タブ内の縮小表示では遊びにくいため、擬似ブラウザUIの信号機風ボタン（緑）を押すと大きいゲーム画面を表示できる（デフォルトは非表示）
 
+## Viewer bookmarklet
+
+閲覧中のページの Favicon を別ウィンドウに巨大表示する bookmarklet を `bookmarklet/` に用意している。タブの小さな Favicon では見づらい環境でも、拡大表示（`image-rendering: pixelated` のドット絵拡大）でゲーム画面を観賞・プレイできる。
+
+- `bookmarklet/index.html` をブラウザで開き、リンクをブックマークバーにドラッグ＆ドロップして登録する
+- Favicon を表示したいページでブックマークをクリックすると別ウィンドウが開き、もう一度クリックすると閉じる（トグル動作）
+- 親ページ側で `<link rel="icon">` の `href` を 100ms ごとにポーリングして画像とタイトルを同期するため、Favicon のアニメーションにリアルタイムで追従する
+- `<link rel="icon">` がないページでは `/favicon.ico` にフォールバックするため、SUPER-FAVICON 以外の一般サイトでも使える
+- ソースは `bookmarklet/super-favicon-viewer.js`。編集後は `node scripts/build-bookmarklet.mjs` で `javascript:` URL とインストール用ページ（`bookmarklet/index.html`）を再生成する
+
 ## ページ全体のブラウザ風UI
 
 「Favicon がゲーム画面」というコンセプトをページ内でも常に体感できるよう、アプリ全体を簡易的なブラウザウィンドウ風の見た目（`BrowserChrome`）で包む。
