@@ -15,6 +15,10 @@ Favicon を動的に書き換えることで、Favicon の画像を 32x32 ピク
 - **Mobile**: ブラウザ側で Favicon の変化が視認できないため、代わりにページ全体を包む擬似ブラウザUI（`BrowserChrome`）のタブ内にFaviconを縮小表示する（Favicon への書き込み自体は継続する）
   - タブ内の縮小表示では遊びにくいため、擬似ブラウザUIの信号機風ボタン（緑）を押すと大きいゲーム画面を表示できる（デフォルトは非表示）
 
+## SuperFaviconBrowser（iOS / Android アプリ）
+
+Mobile では Favicon の変化が視認できない問題への回答として、画面の上半分に Favicon をデカデカと表示する専用ブラウザアプリを `ios/` と `android/` に用意している。上から「巨大 Favicon / ページタイトル / URL バー / ページ本体（WebView）」という構成で、Favicon のゲーム画面を巨大表示で遊べる。詳細は [ios/README.md](ios/README.md) / [android/README.md](android/README.md) を参照。
+
 ## ページ全体のブラウザ風UI
 
 「Favicon がゲーム画面」というコンセプトをページ内でも常に体感できるよう、アプリ全体を簡易的なブラウザウィンドウ風の見た目（`BrowserChrome`）で包む。
