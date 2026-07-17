@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SuperFaviconBrowser</string>
+    <string name="url_hint">URL を入力</string>
+    <string name="favicon_description">現在のページの Favicon</string>
+</resources>
