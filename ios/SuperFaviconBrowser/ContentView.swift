@@ -35,7 +35,7 @@ struct ContentView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(16)
+        .padding(8)
     }
 
     /// Web版 BrowserChrome のタブバー: 信号機風ドット + favicon 付きタブ
