@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Base64
+import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
@@ -22,6 +23,7 @@ import org.json.JSONObject
 import org.json.JSONTokener
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
@@ -88,8 +90,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        urlView.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_GO) {
+        urlView.setOnEditorActionListener { _, actionId, event ->
+            // 物理キーボード(Bluetooth・エミュレータ)の Enter は IME_ACTION_GO ではなく
+            // KeyEvent として届くため、両方を拾う
+            val isEnterKey = event != null &&
+                event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN
+            if (actionId == EditorInfo.IME_ACTION_GO || isEnterKey) {
                 navigateTo(urlView.text.toString())
                 true
             } else {
@@ -137,8 +143,7 @@ class MainActivity : AppCompatActivity() {
     private fun navigateTo(input: String) {
         val trimmed = input.trim()
         if (trimmed.isEmpty()) return
-        val url = if (trimmed.contains("://")) trimmed else "https://$trimmed"
-        webView.loadUrl(url)
+        webView.loadUrl(destinationUrl(trimmed))
         urlView.clearFocus()
         (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
             .hideSoftInputFromWindow(urlView.windowToken, 0)
@@ -207,6 +212,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        /**
+         * URL らしい入力はそのまま（スキームがなければ https:// を補って）開き、
+         * それ以外は Google 検索の URL にする
+         */
+        fun destinationUrl(input: String): String {
+            if (input.contains("://")) return input
+            val host = input.takeWhile { it != '/' && it != '?' && it != '#' }
+            val looksLikeUrl = input.none { it.isWhitespace() } &&
+                (host.contains(".") || host == "localhost" || host.startsWith("localhost:"))
+            if (looksLikeUrl) return "https://$input"
+            return "https://www.google.com/search?q=" + URLEncoder.encode(input, "UTF-8")
+        }
+
         private const val HOME_URL = "https://super-favicon.com/"
         private const val POLL_INTERVAL_MS = 300L
 

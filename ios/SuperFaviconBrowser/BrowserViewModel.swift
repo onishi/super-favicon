@@ -89,9 +89,28 @@ final class BrowserViewModel: NSObject, ObservableObject {
     func navigate(to input: String) {
         let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
-        let urlString = trimmed.contains("://") ? trimmed : "https://\(trimmed)"
-        guard let url = URL(string: urlString) else { return }
+        guard let url = Self.destinationURL(for: trimmed) else { return }
         webView.load(URLRequest(url: url))
+    }
+
+    /// URL らしい入力はそのまま（スキームがなければ https:// を補って）開き、
+    /// それ以外は Google 検索の URL にする
+    static func destinationURL(for input: String) -> URL? {
+        if input.contains("://") {
+            return URL(string: input)
+        }
+        let host = input.prefix { $0 != "/" && $0 != "?" && $0 != "#" }
+        let looksLikeURL = !input.contains(where: \.isWhitespace)
+            && (host.contains(".") || host == "localhost" || host.hasPrefix("localhost:"))
+        if looksLikeURL, let url = URL(string: "https://\(input)") {
+            return url
+        }
+        // urlQueryAllowed は & や + をエンコードしないため、クエリ値用に非予約文字のみ許可する
+        var allowed = CharacterSet.alphanumerics
+        allowed.insert(charactersIn: "-._~")
+        guard let query = input.addingPercentEncoding(withAllowedCharacters: allowed)
+        else { return nil }
+        return URL(string: "https://www.google.com/search?q=\(query)")
     }
 
     private func startPolling() {
