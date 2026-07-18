@@ -3,6 +3,7 @@ import './BrowserChrome.css'
 
 const POLL_INTERVAL_MS = 200
 const FAVICON_LINK_ID = 'favicon'
+const NATIVE_APP_USER_AGENT_TOKEN = 'FaviconExplorer/'
 
 interface BrowserChromeProps {
   children: ReactNode
@@ -16,10 +17,13 @@ interface BrowserChromeProps {
 // title/favicon only visibly update on desktop, this mirrors both in-page so
 // the "favicon as game screen" concept reads clearly everywhere.
 export function BrowserChrome({ children, isMaximized, onMaximize, onMinimize, onCloseToTitle }: BrowserChromeProps) {
+  const isNativeApp = navigator.userAgent.includes(NATIVE_APP_USER_AGENT_TOKEN)
   const [title, setTitle] = useState(document.title)
   const [faviconHref, setFaviconHref] = useState('')
 
   useEffect(() => {
+    if (isNativeApp) return
+
     const update = () => {
       setTitle(document.title)
       const link = document.getElementById(FAVICON_LINK_ID) as HTMLLinkElement | null
@@ -28,7 +32,11 @@ export function BrowserChrome({ children, isMaximized, onMaximize, onMinimize, o
     update()
     const interval = setInterval(update, POLL_INTERVAL_MS)
     return () => clearInterval(interval)
-  }, [])
+  }, [isNativeApp])
+
+  if (isNativeApp) {
+    return <div className="browser-chrome__page">{children}</div>
+  }
 
   return (
     <div className="browser-chrome">
