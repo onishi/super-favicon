@@ -170,6 +170,17 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
     forceHistoryRerender((v) => v + 1)
   }, [redraw, commitChange])
 
+  useEffect(() => {
+    const handleUndoRedoShortcut = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'z') return
+      event.preventDefault()
+      if (event.shiftKey) handleRedo()
+      else handleUndo()
+    }
+    window.addEventListener('keydown', handleUndoRedoShortcut)
+    return () => window.removeEventListener('keydown', handleUndoRedoShortcut)
+  }, [handleUndo, handleRedo])
+
   const paintAt = useCallback(
     (x: number, y: number) => {
       setPixel(bufferRef.current as PixelBuffer, x, y, paintValueRef.current)
