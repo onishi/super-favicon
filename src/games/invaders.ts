@@ -43,7 +43,7 @@ interface Bullet {
 
 export const invadersGame: GameDefinition = {
   id: 'invaders',
-  name: 'インベーダーゲーム',
+  name: 'ドット固定STG',
   create: () => {
     let playerX: number
     let aliveGrid: boolean[]
