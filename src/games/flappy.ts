@@ -44,7 +44,7 @@ function randomGapStart(): number {
 
 export const flappyGame: GameDefinition = {
   id: 'flappy',
-  name: 'フラッピーバード',
+  name: 'ドットフラップ',
   create: () => {
     let birdY: number
     let velocity: number

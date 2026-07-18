@@ -72,7 +72,7 @@ function drawText(buffer: PixelBuffer, text: string, topY: number, color: number
 
 export const timerGame: GameDefinition = {
   id: 'timer',
-  name: 'タイマー',
+  name: 'ドットタイマー',
   create: () => {
     let phase: Phase = 'select'
     let selectedMinutes = DEFAULT_MINUTES
