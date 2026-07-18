@@ -19,11 +19,11 @@ Favicon を動的に書き換えることで、Favicon の画像を 32x32 ピク
 
 閲覧中のページの Favicon を別ウィンドウに巨大表示する bookmarklet を `bookmarklet/` に用意している。タブの小さな Favicon では見づらい環境でも、拡大表示（`image-rendering: pixelated` のドット絵拡大）でゲーム画面を観賞・プレイできる。
 
-- `bookmarklet/index.html` をブラウザで開き、リンクをブックマークバーにドラッグ＆ドロップして登録する
+- インストール用ページはサイトの `/bookmarklet/` で配信される（dev サーバーでは `http://localhost:5173/bookmarklet/`）。ページ内のリンクをブックマークバーにドラッグ＆ドロップして登録する
 - Favicon を表示したいページでブックマークをクリックすると別ウィンドウが開き、もう一度クリックすると閉じる（トグル動作）
 - 親ページ側で `<link rel="icon">` の `href` を 100ms ごとにポーリングして画像とタイトルを同期するため、Favicon のアニメーションにリアルタイムで追従する
 - `<link rel="icon">` がないページでは `/favicon.ico` にフォールバックするため、SUPER-FAVICON 以外の一般サイトでも使える
-- ソースは `bookmarklet/super-favicon-viewer.js`。編集後は `node scripts/build-bookmarklet.mjs` で `javascript:` URL とインストール用ページ（`bookmarklet/index.html`）を再生成する
+- ソースは `bookmarklet/super-favicon-viewer.js`。同ディレクトリの vite プラグイン（`bookmarklet/vite-plugin.ts`）がビルド時に `javascript:` URL 化してインストール用ページ（`dist/bookmarklet/index.html`）を生成するため、生成物のコミットは不要
 
 ## ページ全体のブラウザ風UI
 
