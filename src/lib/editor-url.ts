@@ -1,17 +1,13 @@
-const EDITOR_PARAM = 'editor'
+const EDITOR_PATH = '/editor'
 const PIXELS_PARAM = 'pixels'
 
 export function getEditorFlagFromLocation(): boolean {
-  return new URLSearchParams(window.location.search).get(EDITOR_PARAM) === '1'
+  return window.location.pathname === EDITOR_PATH
 }
 
 export function setEditorFlagInLocation(isOpen: boolean): void {
   const url = new URL(window.location.href)
-  if (isOpen) {
-    url.searchParams.set(EDITOR_PARAM, '1')
-  } else {
-    url.searchParams.delete(EDITOR_PARAM)
-  }
+  url.pathname = isOpen ? EDITOR_PATH : '/'
   window.history.pushState({}, '', url)
 }
 

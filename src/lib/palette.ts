@@ -18,6 +18,25 @@ export function colorForValue(value: number): string {
   return `rgb(${LEVELS[r]}, ${LEVELS[g]}, ${LEVELS[b]})`
 }
 
+function nearestLevelIndex(component: number): number {
+  let closestIndex = 0
+  let closestDistance = Infinity
+  for (let i = 0; i < LEVEL_COUNT; i++) {
+    const distance = Math.abs(LEVELS[i] - component)
+    if (distance < closestDistance) {
+      closestDistance = distance
+      closestIndex = i
+    }
+  }
+  return closestIndex
+}
+
+// Inverse of colorForValue: quantizes an 8bit-per-channel color down to the
+// nearest palette entry (e.g. for importing a photo into the pixel editor).
+export function valueForColor(r: number, g: number, b: number): number {
+  return nearestLevelIndex(r) * LEVEL_COUNT * LEVEL_COUNT + nearestLevelIndex(g) * LEVEL_COUNT + nearestLevelIndex(b)
+}
+
 export const PALETTE: PaletteColor[] = Array.from({ length: LEVEL_COUNT ** 3 }, (_, value) => {
   const r = Math.floor(value / (LEVEL_COUNT * LEVEL_COUNT)) % LEVEL_COUNT
   const g = Math.floor(value / LEVEL_COUNT) % LEVEL_COUNT

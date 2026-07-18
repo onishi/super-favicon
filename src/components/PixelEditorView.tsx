@@ -1,6 +1,14 @@
-import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import { getPixelsCodeFromLocation, setPixelsCodeInLocation } from '../lib/editor-url'
 import { updateFaviconLink } from '../lib/favicon-renderer'
+import { pixelBufferFromImageFile } from '../lib/image-import'
 import { colorForValue, OFF_COLOR, PALETTE, renderPaletteBufferToCanvas } from '../lib/palette'
 import {
   GRID_SIZE,
@@ -13,17 +21,19 @@ import {
   type PixelBuffer,
 } from '../lib/pixel-buffer'
 import { codeToPixelBuffer, pixelBufferToCode } from '../lib/pixel-code'
+import './PixelEditorView.css'
 
 const DISPLAY_SCALE = 8
 const DEFAULT_VALUE = PALETTE[PALETTE.length - 1].value
 const MAX_HISTORY = 50
 
-type Tool = 'pen' | 'rect' | 'fill'
+type Tool = 'pen' | 'rect' | 'fill' | 'eyedropper'
 
 const TOOLS: { id: Tool; label: string }[] = [
   { id: 'pen', label: 'ペン' },
   { id: 'rect', label: '矩形' },
   { id: 'fill', label: '塗りつぶし' },
+  { id: 'eyedropper', label: 'スポイト（Shift）' },
 ]
 
 interface RectPreview {
@@ -73,6 +83,7 @@ function renderEditorCanvas(buffer: PixelBuffer, canvas: HTMLCanvasElement, prev
 
 export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const bufferRef = useRef<PixelBuffer | null>(null)
   const isDrawingRef = useRef(false)
   const paintValueRef = useRef(DEFAULT_VALUE)
@@ -169,6 +180,17 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
     forceHistoryRerender((v) => v + 1)
   }, [redraw, commitChange])
 
+  useEffect(() => {
+    const handleUndoRedoShortcut = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'z') return
+      event.preventDefault()
+      if (event.shiftKey) handleRedo()
+      else handleUndo()
+    }
+    window.addEventListener('keydown', handleUndoRedoShortcut)
+    return () => window.removeEventListener('keydown', handleUndoRedoShortcut)
+  }, [handleUndo, handleRedo])
+
   const paintAt = useCallback(
     (x: number, y: number) => {
       setPixel(bufferRef.current as PixelBuffer, x, y, paintValueRef.current)
@@ -184,7 +206,10 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
     const { x, y } = getCellFromPointer(event, canvas)
     const currentValue = getPixel(bufferRef.current as PixelBuffer, x, y)
 
-    if (event.shiftKey) {
+    // Shift+click works as a quick eyedropper regardless of the active tool;
+    // selecting the eyedropper tool itself gives the same result without
+    // needing a modifier key (useful on touch devices).
+    if (event.shiftKey || tool === 'eyedropper') {
       setSelectedValue(currentValue)
       return
     }
@@ -256,33 +281,44 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
     commitChange()
   }
 
+  const handleImportImage = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    try {
+      const imported = await pixelBufferFromImageFile(file)
+      pushHistory()
+      bufferRef.current = imported
+      redraw()
+      commitChange()
+    } catch (error) {
+      console.error('Failed to import image into the pixel editor', error)
+    }
+  }
+
   const canUndo = undoStackRef.current.length > 0
   const canRedo = redoStackRef.current.length > 0
+  // While Shift is held, clicks act as the eyedropper regardless of the
+  // selected tool (see handlePointerDown) — reflect that in the toolbar too.
+  const displayedTool: Tool = isShiftHeld ? 'eyedropper' : tool
 
   return (
-    <div>
+    <div className="pixel-editor">
       <div className="pixel-editor__workspace">
         <div
-          style={{
-            position: 'relative',
-            width: GRID_SIZE * DISPLAY_SCALE,
-            height: GRID_SIZE * DISPLAY_SCALE,
-          }}
+          className="pixel-editor__canvas-frame"
+          style={{ width: GRID_SIZE * DISPLAY_SCALE, height: GRID_SIZE * DISPLAY_SCALE }}
         >
           <canvas
             ref={canvasRef}
             width={GRID_SIZE}
             height={GRID_SIZE}
+            className="pixel-editor__canvas"
             style={{
               width: GRID_SIZE * DISPLAY_SCALE,
               height: GRID_SIZE * DISPLAY_SCALE,
-              // outline (not border) so it doesn't shrink the content box —
-              // a border here would desync the bitmap from the grid overlay,
-              // which is sized to the full box.
-              outline: '1px solid #ccc',
-              imageRendering: 'pixelated',
-              touchAction: 'none',
-              cursor: isShiftHeld ? 'crosshair' : undefined,
+              cursor: isShiftHeld || tool === 'eyedropper' ? 'crosshair' : undefined,
             }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -304,7 +340,6 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
               className="pixel-editor__swatch"
               style={{
                 backgroundColor: entry.color,
-                outline: selectedValue === entry.value ? '3px solid var(--accent)' : undefined,
                 boxShadow: hoverValue === entry.value ? '0 0 0 2px var(--text-h)' : undefined,
               }}
               onClick={() => setSelectedValue(entry.value)}
@@ -312,20 +347,21 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
           ))}
         </div>
       </div>
-      <div className="pixel-editor__tools">
+
+      <div className="pixel-editor__toolbar" role="group" aria-label="描画ツール">
         {TOOLS.map((entry) => (
           <button
             key={entry.id}
             type="button"
-            aria-pressed={tool === entry.id}
+            aria-pressed={displayedTool === entry.id}
             className="pixel-editor__tool"
-            style={{ outline: tool === entry.id ? '3px solid var(--accent)' : undefined }}
             onClick={() => setTool(entry.id)}
           >
             {entry.label}
           </button>
         ))}
       </div>
+
       <div className="pixel-editor__actions">
         <button type="button" onClick={handleUndo} disabled={!canUndo}>
           元に戻す
@@ -336,13 +372,25 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
         <button type="button" onClick={handleClear}>
           クリア
         </button>
-        <button type="button" onClick={() => onStartLifeGame(code)}>
-          この配置でドットライフを開始
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="pixel-editor__file-input"
+          onChange={handleImportImage}
+        />
+        <button type="button" onClick={() => fileInputRef.current?.click()}>
+          画像を読み込む
         </button>
       </div>
-      <p>Shift + クリックでスポイト（カーソル位置の色をパレットから選択）</p>
-      <p>この配置のURL（共有・復元用、現在のアドレスバーにも反映されています）</p>
-      <code className="pixel-editor__code">{chunkCode(code, GRID_SIZE)}</code>
+
+      <div className="pixel-editor__info">
+        <code className="pixel-editor__code">{chunkCode(code, GRID_SIZE)}</code>
+      </div>
+
+      <button type="button" className="pixel-editor__life-link" onClick={() => onStartLifeGame(code)}>
+        この配置でドットライフを開始
+      </button>
     </div>
   )
 }
