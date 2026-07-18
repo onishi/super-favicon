@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ic_launcher_background">#101418</color>
+    <color name="ic_launcher_background">#000000</color>
 
     <!-- Web版 BrowserChrome（src/index.css）と同じ配色 -->
     <color name="browser_bg">#FFFFFF</color>

@@ -38,3 +38,4 @@ cd android
 
 - `app/src/main/java/com/superfavicon/browser/MainActivity.kt` — WebView の設定、favicon・タイトルのポーリングとデコード、URL バー
 - `app/src/main/res/layout/activity_main.xml` — 画面レイアウト（Guideline 50% で上半分を favicon 領域に）
+- `app/src/main/res/drawable/ic_launcher_foreground.xml` — アプリアイコン（地球儀のドット絵。`scripts/generate-app-icons.py` で生成）

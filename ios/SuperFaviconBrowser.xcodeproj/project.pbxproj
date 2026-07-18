@@ -11,6 +11,7 @@
 		816A669A77C2089F04E4A701 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FD6723AF56A616CB807950F /* Theme.swift */; };
 		C6CC498F0A1888ABB8AE0C57 /* WebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93C5E34D75BF6FC11CA85DD /* WebView.swift */; };
 		CDDE29EC166275EBD24B0E50 /* BrowserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD3E070AB49B6F4EFF212BB8 /* BrowserViewModel.swift */; };
+		D96E185E8004B93CBAE1B15E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4E292D691C69E6BB7EE294E4 /* Assets.xcassets */; };
 		F8EE6A566A1C40AE4B2434FC /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E8A8A05B8FC3764EAEC979F /* ContentView.swift */; };
 /* End PBXBuildFile section */
 
@@ -18,6 +19,7 @@
 		0B6E7285809D8CD7CF5E62DB /* SuperFaviconBrowserApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperFaviconBrowserApp.swift; sourceTree = "<group>"; };
 		0E8A8A05B8FC3764EAEC979F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0FD6723AF56A616CB807950F /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		4E292D691C69E6BB7EE294E4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		836280BFF39FD631514058DC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		8B84D306D0CAD7598A569BCC /* SuperFaviconBrowser.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = SuperFaviconBrowser.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A93C5E34D75BF6FC11CA85DD /* WebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebView.swift; sourceTree = "<group>"; };
@@ -44,6 +46,7 @@
 		FCBCD8AB8B4B608F24150A99 /* SuperFaviconBrowser */ = {
 			isa = PBXGroup;
 			children = (
+				4E292D691C69E6BB7EE294E4 /* Assets.xcassets */,
 				AD3E070AB49B6F4EFF212BB8 /* BrowserViewModel.swift */,
 				0E8A8A05B8FC3764EAEC979F /* ContentView.swift */,
 				836280BFF39FD631514058DC /* Info.plist */,
@@ -62,6 +65,7 @@
 			buildConfigurationList = FE5AABBF9B53A208B7D78408 /* Build configuration list for PBXNativeTarget "SuperFaviconBrowser" */;
 			buildPhases = (
 				771B4B07B92CA172D8C604DA /* Sources */,
+				BA4A696AED6DD6583EFC7558 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -103,6 +107,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BA4A696AED6DD6583EFC7558 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D96E185E8004B93CBAE1B15E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		771B4B07B92CA172D8C604DA /* Sources */ = {
