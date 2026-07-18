@@ -1,6 +1,14 @@
-import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import { getPixelsCodeFromLocation, setPixelsCodeInLocation } from '../lib/editor-url'
 import { updateFaviconLink } from '../lib/favicon-renderer'
+import { pixelBufferFromImageFile } from '../lib/image-import'
 import { colorForValue, OFF_COLOR, PALETTE, renderPaletteBufferToCanvas } from '../lib/palette'
 import {
   GRID_SIZE,
@@ -75,6 +83,7 @@ function renderEditorCanvas(buffer: PixelBuffer, canvas: HTMLCanvasElement, prev
 
 export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const bufferRef = useRef<PixelBuffer | null>(null)
   const isDrawingRef = useRef(false)
   const paintValueRef = useRef(DEFAULT_VALUE)
@@ -272,6 +281,22 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
     commitChange()
   }
 
+  const handleImportImage = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    try {
+      const imported = await pixelBufferFromImageFile(file)
+      pushHistory()
+      bufferRef.current = imported
+      redraw()
+      commitChange()
+    } catch (error) {
+      console.error('Failed to import image into the pixel editor', error)
+    }
+  }
+
   const canUndo = undoStackRef.current.length > 0
   const canRedo = redoStackRef.current.length > 0
   // While Shift is held, clicks act as the eyedropper regardless of the
@@ -346,6 +371,16 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
         </button>
         <button type="button" onClick={handleClear}>
           クリア
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="pixel-editor__file-input"
+          onChange={handleImportImage}
+        />
+        <button type="button" onClick={() => fileInputRef.current?.click()}>
+          画像を読み込む
         </button>
       </div>
 

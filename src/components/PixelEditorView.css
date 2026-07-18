@@ -104,6 +104,10 @@
   gap: 8px;
 }
 
+.pixel-editor__file-input {
+  display: none;
+}
+
 .pixel-editor__info {
   width: 528px;
   max-width: 100%;
