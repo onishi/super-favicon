@@ -38,21 +38,9 @@ struct ContentView: View {
         .padding(8)
     }
 
-    /// Web版 BrowserChrome のタブバー: 信号機風ドット + favicon 付きタブ
+    /// Web版 BrowserChrome のタブバー: favicon 付きタブ
     private var tabBar: some View {
         HStack(alignment: .bottom, spacing: 10) {
-            HStack(spacing: 6) {
-                Button {
-                    model.goHome()
-                } label: {
-                    Circle().fill(Theme.dotRed).frame(width: 12, height: 12)
-                }
-                .accessibilityLabel("ホームへ戻る")
-                Circle().fill(Theme.dotYellow).frame(width: 12, height: 12)
-                Circle().fill(Theme.dotGreen).frame(width: 12, height: 12)
-            }
-            .padding(.bottom, 10)
-
             tab
 
             Spacer(minLength: 0)
@@ -83,8 +71,39 @@ struct ContentView: View {
         )
     }
 
-    /// Web版 BrowserChrome のアドレスバー: ピル型の URL 表示（こちらは編集可能）
+    /// Web版 BrowserChrome のアドレスバー: ナビゲーションボタン + ピル型の URL 表示（編集可能）
     private var toolbar: some View {
+        HStack(spacing: 6) {
+            toolbarButton("house", label: "ホームへ戻る") {
+                model.goHome()
+            }
+            toolbarButton("chevron.backward", label: "戻る") {
+                model.goBack()
+            }
+            .disabled(!model.canGoBack)
+            .opacity(model.canGoBack ? 1 : 0.3)
+            toolbarButton("chevron.forward", label: "進む") {
+                model.goForward()
+            }
+            .disabled(!model.canGoForward)
+            .opacity(model.canGoForward ? 1 : 0.3)
+
+            urlPill
+                .frame(maxWidth: .infinity)
+
+            toolbarButton("arrow.clockwise", label: "再読み込み") {
+                model.reload()
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.horizontal, 12)
+        .background(Theme.bg)
+        .overlay(alignment: .bottom) {
+            Theme.border.frame(height: 1)
+        }
+    }
+
+    private var urlPill: some View {
         HStack(spacing: 6) {
             if model.urlText.hasPrefix("https://") {
                 Text("🔒")
@@ -107,12 +126,22 @@ struct ContentView: View {
         .padding(.vertical, 4)
         .padding(.horizontal, 12)
         .background(Theme.codeBg, in: Capsule())
-        .padding(.vertical, 8)
-        .padding(.horizontal, 12)
-        .background(Theme.bg)
-        .overlay(alignment: .bottom) {
-            Theme.border.frame(height: 1)
+    }
+
+    /// URL 編集中にタップされた場合は編集を終えてから遷移する
+    private func toolbarButton(
+        _ systemName: String, label: String, action: @escaping () -> Void
+    ) -> some View {
+        Button {
+            urlFieldFocused = false
+            action()
+        } label: {
+            Image(systemName: systemName)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundStyle(Theme.text)
+                .frame(width: 28, height: 28)
         }
+        .accessibilityLabel(label)
     }
 }
 
