@@ -71,30 +71,41 @@ struct ContentView: View {
         )
     }
 
-    /// Web版 BrowserChrome のアドレスバー: ナビゲーションボタン + ピル型の URL 表示（編集可能）
+    /// Web版 BrowserChrome のアドレスバー: ナビゲーションボタン + ピル型の URL 表示（編集可能）。
+    /// URL 編集中はボタンを畳んでピルを全幅に広げる
     private var toolbar: some View {
         HStack(spacing: 6) {
-            toolbarButton("house", label: "ホームへ戻る") {
-                model.goHome()
+            if !urlFieldFocused {
+                toolbarButton("house", label: "ホームへ戻る") {
+                    model.goHome()
+                }
+                toolbarButton("chevron.backward", label: "戻る") {
+                    model.goBack()
+                }
+                .disabled(!model.canGoBack)
+                .opacity(model.canGoBack ? 1 : 0.3)
+                toolbarButton("chevron.forward", label: "進む") {
+                    model.goForward()
+                }
+                .disabled(!model.canGoForward)
+                .opacity(model.canGoForward ? 1 : 0.3)
             }
-            toolbarButton("chevron.backward", label: "戻る") {
-                model.goBack()
-            }
-            .disabled(!model.canGoBack)
-            .opacity(model.canGoBack ? 1 : 0.3)
-            toolbarButton("chevron.forward", label: "進む") {
-                model.goForward()
-            }
-            .disabled(!model.canGoForward)
-            .opacity(model.canGoForward ? 1 : 0.3)
 
             urlPill
                 .frame(maxWidth: .infinity)
 
-            toolbarButton("arrow.clockwise", label: "再読み込み") {
-                model.reload()
+            if urlFieldFocused {
+                // キャンセル: 編集を破棄して元の URL 表示に戻す（ポーリングが上書きしてくれる）
+                toolbarButton("xmark", label: "入力をキャンセル") {
+                    urlFieldFocused = false
+                }
+            } else {
+                toolbarButton("arrow.clockwise", label: "再読み込み") {
+                    model.reload()
+                }
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: urlFieldFocused)
         .padding(.vertical, 8)
         .padding(.horizontal, 12)
         .background(Theme.bg)
@@ -128,14 +139,10 @@ struct ContentView: View {
         .background(Theme.codeBg, in: Capsule())
     }
 
-    /// URL 編集中にタップされた場合は編集を終えてから遷移する
     private func toolbarButton(
         _ systemName: String, label: String, action: @escaping () -> Void
     ) -> some View {
-        Button {
-            urlFieldFocused = false
-            action()
-        } label: {
+        Button(action: action) {
             Image(systemName: systemName)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(Theme.text)
