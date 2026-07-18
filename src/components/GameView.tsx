@@ -3,6 +3,7 @@ import type { GameDefinition } from '../games/types'
 import { useFaviconLoop } from '../hooks/useFaviconLoop'
 import { useGameRuntime } from '../hooks/useGameRuntime'
 import { useInputState } from '../hooks/useInputState'
+import { renderPaletteBufferToCanvas } from '../lib/palette'
 import { FaviconPreview } from './FaviconPreview'
 import { TouchControls } from './TouchControls'
 
@@ -19,7 +20,11 @@ export function GameView({ game, onExit, isMaximized }: GameViewProps) {
   const input = useInputState()
   const { getBuffer, getScore, getStatusText } = useGameRuntime(game, input)
 
-  useFaviconLoop(getBuffer, { fps: 12, previewCanvasRef })
+  useFaviconLoop(getBuffer, {
+    fps: 12,
+    previewCanvasRef,
+    render: game.colorMode === 'palette' ? renderPaletteBufferToCanvas : undefined,
+  })
 
   useEffect(() => {
     const updateTitle = () => {
