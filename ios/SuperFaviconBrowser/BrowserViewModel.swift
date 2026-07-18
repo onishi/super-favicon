@@ -15,6 +15,8 @@ final class BrowserViewModel: NSObject, ObservableObject {
     @Published var pageTitle: String = ""
     @Published var urlText: String = ""
     @Published var favicon: UIImage?
+    @Published var canGoBack = false
+    @Published var canGoForward = false
 
     /// URL バー編集中はページ側の URL で上書きしない
     var isEditingURL = false
@@ -74,6 +76,10 @@ final class BrowserViewModel: NSObject, ObservableObject {
 
     /// Pull to Refresh: 現在のページを再読み込みする
     @objc private func reloadForRefresh() {
+        reload()
+    }
+
+    func reload() {
         if webView.url == nil {
             webView.load(URLRequest(url: Self.homeURL))
         } else {
@@ -81,9 +87,16 @@ final class BrowserViewModel: NSObject, ObservableObject {
         }
     }
 
-    /// 赤ドット（Web版の「タイトルへ戻る」に相当）: ホームへ戻る
     func goHome() {
         webView.load(URLRequest(url: Self.homeURL))
+    }
+
+    func goBack() {
+        webView.goBack()
+    }
+
+    func goForward() {
+        webView.goForward()
     }
 
     func navigate(to input: String) {
@@ -122,6 +135,9 @@ final class BrowserViewModel: NSObject, ObservableObject {
     }
 
     private func poll() {
+        // エッジスワイプによる遷移も拾えるよう、ポーリングで戻る/進む可否を追いかける
+        if canGoBack != webView.canGoBack { canGoBack = webView.canGoBack }
+        if canGoForward != webView.canGoForward { canGoForward = webView.canGoForward }
         if !isEditingURL, let url = webView.url {
             let text = url.absoluteString
             if urlText != text { urlText = text }

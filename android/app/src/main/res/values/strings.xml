@@ -4,5 +4,9 @@
     <string name="url_hint">URL を入力</string>
     <string name="favicon_description">現在のページの Favicon</string>
     <string name="go_home_description">ホームへ戻る</string>
+    <string name="go_back_description">戻る</string>
+    <string name="go_forward_description">進む</string>
+    <string name="reload_description">再読み込み</string>
+    <string name="cancel_edit_description">入力をキャンセル</string>
     <string name="lock_icon">🔒</string>
 </resources>

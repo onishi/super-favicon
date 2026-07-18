@@ -8,7 +8,4 @@
     <color name="browser_border">#E5E4E7</color>
     <color name="browser_text">#6B6375</color>
     <color name="browser_text_h">#08060D</color>
-    <color name="dot_red">#FF5F57</color>
-    <color name="dot_yellow">#FEBC2E</color>
-    <color name="dot_green">#28C840</color>
 </resources>
