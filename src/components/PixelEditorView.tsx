@@ -19,12 +19,13 @@ const DISPLAY_SCALE = 8
 const DEFAULT_VALUE = PALETTE[PALETTE.length - 1].value
 const MAX_HISTORY = 50
 
-type Tool = 'pen' | 'rect' | 'fill'
+type Tool = 'pen' | 'rect' | 'fill' | 'eyedropper'
 
 const TOOLS: { id: Tool; label: string }[] = [
   { id: 'pen', label: 'ペン' },
   { id: 'rect', label: '矩形' },
   { id: 'fill', label: '塗りつぶし' },
+  { id: 'eyedropper', label: 'スポイト' },
 ]
 
 interface RectPreview {
@@ -196,7 +197,10 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
     const { x, y } = getCellFromPointer(event, canvas)
     const currentValue = getPixel(bufferRef.current as PixelBuffer, x, y)
 
-    if (event.shiftKey) {
+    // Shift+click works as a quick eyedropper regardless of the active tool;
+    // selecting the eyedropper tool itself gives the same result without
+    // needing a modifier key (useful on touch devices).
+    if (event.shiftKey || tool === 'eyedropper') {
       setSelectedValue(currentValue)
       return
     }
@@ -286,7 +290,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
             style={{
               width: GRID_SIZE * DISPLAY_SCALE,
               height: GRID_SIZE * DISPLAY_SCALE,
-              cursor: isShiftHeld ? 'crosshair' : undefined,
+              cursor: isShiftHeld || tool === 'eyedropper' ? 'crosshair' : undefined,
             }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -331,27 +335,24 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
       </div>
 
       <div className="pixel-editor__actions">
-        <div className="pixel-editor__history-actions">
-          <button type="button" onClick={handleUndo} disabled={!canUndo}>
-            元に戻す
-          </button>
-          <button type="button" onClick={handleRedo} disabled={!canRedo}>
-            やり直す
-          </button>
-          <button type="button" onClick={handleClear}>
-            クリア
-          </button>
-        </div>
-        <button type="button" className="pixel-editor__cta" onClick={() => onStartLifeGame(code)}>
-          この配置でドットライフを開始
+        <button type="button" onClick={handleUndo} disabled={!canUndo}>
+          元に戻す
+        </button>
+        <button type="button" onClick={handleRedo} disabled={!canRedo}>
+          やり直す
+        </button>
+        <button type="button" onClick={handleClear}>
+          クリア
         </button>
       </div>
 
       <div className="pixel-editor__info">
-        <p className="pixel-editor__hint">Shift + クリックでスポイト（カーソル位置の色をパレットから選択）</p>
-        <p className="pixel-editor__hint">この配置のURL（共有・復元用、現在のアドレスバーにも反映されています）</p>
         <code className="pixel-editor__code">{chunkCode(code, GRID_SIZE)}</code>
       </div>
+
+      <button type="button" className="pixel-editor__life-link" onClick={() => onStartLifeGame(code)}>
+        この配置でドットライフを開始
+      </button>
     </div>
   )
 }

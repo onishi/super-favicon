@@ -99,23 +99,9 @@
 
 .pixel-editor__actions {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-
-.pixel-editor__history-actions {
-  display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
-}
-
-.pixel-editor__cta {
-  border-color: var(--accent-border);
-  background: var(--accent-bg);
-  color: var(--accent);
-  font-weight: 600;
 }
 
 .pixel-editor__info {
@@ -128,18 +114,9 @@
   text-align: left;
 }
 
-.pixel-editor__hint {
-  font-size: 14px;
-  margin: 0;
-}
-
-.pixel-editor__hint + .pixel-editor__hint {
-  margin-top: 4px;
-}
-
 .pixel-editor__code {
   display: block;
-  margin: 12px auto 0;
+  margin: 0 auto;
   padding: 12px;
   width: fit-content;
   word-break: break-all;
@@ -149,4 +126,21 @@
      makes each row as tall as a character is wide, so the 32x32 block of
      text reads as roughly square instead of a tall rectangle. */
   line-height: 1ch;
+}
+
+/* Secondary, low-emphasis affordance — not a core editing action, so it
+   reads as a plain text link rather than a button, at the very bottom. */
+.pixel-editor__life-link {
+  min-height: auto;
+  padding: 4px 8px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pixel-editor__life-link:hover {
+  color: var(--text-h);
 }
