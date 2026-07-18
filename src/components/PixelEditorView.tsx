@@ -13,6 +13,7 @@ import {
   type PixelBuffer,
 } from '../lib/pixel-buffer'
 import { codeToPixelBuffer, pixelBufferToCode } from '../lib/pixel-code'
+import './PixelEditorView.css'
 
 const DISPLAY_SCALE = 8
 const DEFAULT_VALUE = PALETTE[PALETTE.length - 1].value
@@ -260,28 +261,20 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
   const canRedo = redoStackRef.current.length > 0
 
   return (
-    <div>
+    <div className="pixel-editor">
       <div className="pixel-editor__workspace">
         <div
-          style={{
-            position: 'relative',
-            width: GRID_SIZE * DISPLAY_SCALE,
-            height: GRID_SIZE * DISPLAY_SCALE,
-          }}
+          className="pixel-editor__canvas-frame"
+          style={{ width: GRID_SIZE * DISPLAY_SCALE, height: GRID_SIZE * DISPLAY_SCALE }}
         >
           <canvas
             ref={canvasRef}
             width={GRID_SIZE}
             height={GRID_SIZE}
+            className="pixel-editor__canvas"
             style={{
               width: GRID_SIZE * DISPLAY_SCALE,
               height: GRID_SIZE * DISPLAY_SCALE,
-              // outline (not border) so it doesn't shrink the content box —
-              // a border here would desync the bitmap from the grid overlay,
-              // which is sized to the full box.
-              outline: '1px solid #ccc',
-              imageRendering: 'pixelated',
-              touchAction: 'none',
               cursor: isShiftHeld ? 'crosshair' : undefined,
             }}
             onPointerDown={handlePointerDown}
@@ -304,7 +297,6 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
               className="pixel-editor__swatch"
               style={{
                 backgroundColor: entry.color,
-                outline: selectedValue === entry.value ? '3px solid var(--accent)' : undefined,
                 boxShadow: hoverValue === entry.value ? '0 0 0 2px var(--text-h)' : undefined,
               }}
               onClick={() => setSelectedValue(entry.value)}
@@ -312,37 +304,43 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
           ))}
         </div>
       </div>
-      <div className="pixel-editor__tools">
+
+      <div className="pixel-editor__toolbar" role="group" aria-label="描画ツール">
         {TOOLS.map((entry) => (
           <button
             key={entry.id}
             type="button"
             aria-pressed={tool === entry.id}
             className="pixel-editor__tool"
-            style={{ outline: tool === entry.id ? '3px solid var(--accent)' : undefined }}
             onClick={() => setTool(entry.id)}
           >
             {entry.label}
           </button>
         ))}
       </div>
+
       <div className="pixel-editor__actions">
-        <button type="button" onClick={handleUndo} disabled={!canUndo}>
-          元に戻す
-        </button>
-        <button type="button" onClick={handleRedo} disabled={!canRedo}>
-          やり直す
-        </button>
-        <button type="button" onClick={handleClear}>
-          クリア
-        </button>
-        <button type="button" onClick={() => onStartLifeGame(code)}>
+        <div className="pixel-editor__history-actions">
+          <button type="button" onClick={handleUndo} disabled={!canUndo}>
+            元に戻す
+          </button>
+          <button type="button" onClick={handleRedo} disabled={!canRedo}>
+            やり直す
+          </button>
+          <button type="button" onClick={handleClear}>
+            クリア
+          </button>
+        </div>
+        <button type="button" className="pixel-editor__cta" onClick={() => onStartLifeGame(code)}>
           この配置でドットライフを開始
         </button>
       </div>
-      <p>Shift + クリックでスポイト（カーソル位置の色をパレットから選択）</p>
-      <p>この配置のURL（共有・復元用、現在のアドレスバーにも反映されています）</p>
-      <code className="pixel-editor__code">{chunkCode(code, GRID_SIZE)}</code>
+
+      <div className="pixel-editor__info">
+        <p className="pixel-editor__hint">Shift + クリックでスポイト（カーソル位置の色をパレットから選択）</p>
+        <p className="pixel-editor__hint">この配置のURL（共有・復元用、現在のアドレスバーにも反映されています）</p>
+        <code className="pixel-editor__code">{chunkCode(code, GRID_SIZE)}</code>
+      </div>
     </div>
   )
 }
