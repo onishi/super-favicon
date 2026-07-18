@@ -22,7 +22,7 @@ Favicon とタイトルはページ側で動的に書き換えられる（SUPER-
 
 ## ビルド
 
-JDK 17 と Android SDK（compileSdk 35）が必要。
+JDK 17 と Android SDK（compileSdk 35）が必要。デフォルトの JDK が 17 以外の場合は `JAVA_HOME` で指定する（例: Homebrew の場合 `JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home ./gradlew …`）。
 
 ```sh
 cd android
@@ -35,6 +35,22 @@ cd android
 ```sh
 ./gradlew installDebug
 ```
+
+## リリースビルド(AAB)
+
+Play Console へアップロードする署名付き AAB を作る。
+
+```sh
+cd android
+./gradlew bundleRelease
+# → app/build/outputs/bundle/release/app-release.aab
+```
+
+### 署名の仕組み
+
+- Google Play の **Play App Signing** を使う前提。ここで署名するのは「アップロードキー」で、アプリ署名キーは Google が管理する
+- 署名情報は `android/keystore.properties`(git 管理外)から読む。ファイルがない場合は署名なしでビルドされる
+- `versionCode` は git のコミット数(`git rev-list --count HEAD`)から自動採番される
 
 ## 構成ファイル
 
