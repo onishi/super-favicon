@@ -24,6 +24,10 @@ android {
     namespace = "com.superfavicon"
     compileSdk = 35
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId = "com.superfavicon"
         minSdk = 26

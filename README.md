@@ -19,6 +19,8 @@ Favicon を動的に書き換えることで、Favicon の画像を 32x32 ピク
 
 Mobile では Favicon の変化が視認できない問題への回答として、画面の上半分に Favicon をデカデカと表示する専用ブラウザアプリを `ios/` と `android/` に用意している。上から「巨大 Favicon / ページタイトル / URL バー / ページ本体（WebView）」という構成で、Favicon のゲーム画面を巨大表示で遊べる。詳細は [ios/README.md](ios/README.md) / [android/README.md](android/README.md) を参照。
 
+両アプリの WebView は通常の User-Agent の末尾に `FaviconExplorer/<version>` を追加する。Web 版はこのトークンがある場合、ネイティブ側と重複する擬似ブラウザUI（タブバー・URLバー）を表示せず、ページ本体だけを表示する。
+
 ## Viewer bookmarklet
 
 閲覧中のページの Favicon を別ウィンドウに巨大表示する bookmarklet を `bookmarklet/` に用意している。タブの小さな Favicon では見づらい環境でも、拡大表示（`image-rendering: pixelated` のドット絵拡大）でゲーム画面を観賞・プレイできる。

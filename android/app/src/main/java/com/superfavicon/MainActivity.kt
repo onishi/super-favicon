@@ -114,6 +114,8 @@ class MainActivity : AppCompatActivity() {
         webView.settings.apply {
             javaScriptEnabled = true
             domStorageEnabled = true
+            // 通常の WebView UA を保ったまま、Web 側がアプリ内表示を識別できるトークンを末尾に加える。
+            userAgentString = "$userAgentString $APP_USER_AGENT"
         }
         webView.webViewClient = object : WebViewClient() {
             override fun doUpdateVisitedHistory(view: WebView, url: String, isReload: Boolean) {
@@ -288,6 +290,7 @@ class MainActivity : AppCompatActivity() {
 
         private const val HOME_URL = "https://super-favicon.com/"
         private const val POLL_INTERVAL_MS = 300L
+        private val APP_USER_AGENT = "FaviconExplorer/${BuildConfig.VERSION_NAME}"
 
         /**
          * ページから document.title と favicon の href を取り出す。

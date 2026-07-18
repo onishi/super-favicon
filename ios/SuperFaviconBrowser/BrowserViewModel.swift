@@ -8,6 +8,10 @@ import WebKit
 final class BrowserViewModel: NSObject, ObservableObject {
     static let homeURL = URL(string: "https://super-favicon.com/")!
     private static let pollInterval: TimeInterval = 0.3
+    private static var applicationUserAgent: String {
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
+        return "FaviconExplorer/\(version)"
+    }
 
     let webView: WKWebView
     private let refreshControl = UIRefreshControl()
@@ -64,7 +68,10 @@ final class BrowserViewModel: NSObject, ObservableObject {
         """
 
     override init() {
-        webView = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
+        let configuration = WKWebViewConfiguration()
+        // 通常の Safari UA を保ったまま、Web 側がアプリ内表示を識別できるトークンを末尾に加える。
+        configuration.applicationNameForUserAgent = Self.applicationUserAgent
+        webView = WKWebView(frame: .zero, configuration: configuration)
         super.init()
         webView.allowsBackForwardNavigationGestures = true
         webView.navigationDelegate = self
