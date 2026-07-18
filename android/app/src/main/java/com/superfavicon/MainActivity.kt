@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Base64
+import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
@@ -89,8 +90,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        urlView.setOnEditorActionListener { _, actionId, _ ->
-            if (actionId == EditorInfo.IME_ACTION_GO) {
+        urlView.setOnEditorActionListener { _, actionId, event ->
+            // 物理キーボード(Bluetooth・エミュレータ)の Enter は IME_ACTION_GO ではなく
+            // KeyEvent として届くため、両方を拾う
+            val isEnterKey = event != null &&
+                event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN
+            if (actionId == EditorInfo.IME_ACTION_GO || isEnterKey) {
                 navigateTo(urlView.text.toString())
                 true
             } else {
