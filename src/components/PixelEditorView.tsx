@@ -25,7 +25,7 @@ const TOOLS: { id: Tool; label: string }[] = [
   { id: 'pen', label: 'ペン' },
   { id: 'rect', label: '矩形' },
   { id: 'fill', label: '塗りつぶし' },
-  { id: 'eyedropper', label: 'スポイト' },
+  { id: 'eyedropper', label: 'スポイト（Shift）' },
 ]
 
 interface RectPreview {
@@ -274,6 +274,9 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
 
   const canUndo = undoStackRef.current.length > 0
   const canRedo = redoStackRef.current.length > 0
+  // While Shift is held, clicks act as the eyedropper regardless of the
+  // selected tool (see handlePointerDown) — reflect that in the toolbar too.
+  const displayedTool: Tool = isShiftHeld ? 'eyedropper' : tool
 
   return (
     <div className="pixel-editor">
@@ -325,7 +328,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
           <button
             key={entry.id}
             type="button"
-            aria-pressed={tool === entry.id}
+            aria-pressed={displayedTool === entry.id}
             className="pixel-editor__tool"
             onClick={() => setTool(entry.id)}
           >
