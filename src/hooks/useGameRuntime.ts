@@ -5,7 +5,7 @@ import type { InputState } from './useInputState'
 
 export interface GameRuntime {
   getBuffer: () => PixelBuffer
-  getScore: () => number
+  getScore: () => number | undefined
   getStatusText: () => string | undefined
 }
 
@@ -21,11 +21,13 @@ export function useGameRuntime(game: GameDefinition, input: InputState): GameRun
     instanceRef.current.update(input)
     clearPixelBuffer(bufferRef.current)
     instanceRef.current.render(bufferRef.current)
-    applyGlow(bufferRef.current)
+    // Glow is defined in terms of the small semantic color set; it doesn't
+    // have meaningful semantics for raw RGB-palette buffer values.
+    if (game.colorMode !== 'palette') applyGlow(bufferRef.current)
     return bufferRef.current
-  }, [input])
+  }, [input, game.colorMode])
 
-  const getScore = useCallback(() => instanceRef.current.getScore?.() ?? 0, [])
+  const getScore = useCallback(() => instanceRef.current.getScore?.(), [])
   const getStatusText = useCallback(() => instanceRef.current.getStatusText?.(), [])
 
   return { getBuffer, getScore, getStatusText }

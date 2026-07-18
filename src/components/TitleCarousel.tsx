@@ -78,7 +78,7 @@ function renderGamePreview(game: GameDefinition): PixelBuffer {
   const buffer = createPixelBuffer()
   const instance = game.create()
   instance.render(buffer)
-  applyGlow(buffer)
+  if (game.colorMode !== 'palette') applyGlow(buffer)
   return buffer
 }
 
@@ -135,14 +135,18 @@ export function TitleCarousel({ games, onSelectGame, isMaximized }: TitleCarouse
     return previewBufferRef.current
   }, [games, total, onSelectGame, input])
 
-  const render = useCallback((buffer: PixelBuffer, canvas: HTMLCanvasElement) => {
-    if (indexRef.current === 0) {
-      renderPaletteBufferToCanvas(buffer, canvas)
-    } else {
-      renderPixelBufferToCanvas(buffer, canvas)
-    }
-    drawPagerArrows(canvas, blinkCounterRef.current)
-  }, [])
+  const render = useCallback(
+    (buffer: PixelBuffer, canvas: HTMLCanvasElement) => {
+      const usesPalette = indexRef.current === 0 || games[indexRef.current - 1]?.colorMode === 'palette'
+      if (usesPalette) {
+        renderPaletteBufferToCanvas(buffer, canvas)
+      } else {
+        renderPixelBufferToCanvas(buffer, canvas)
+      }
+      drawPagerArrows(canvas, blinkCounterRef.current)
+    },
+    [games],
+  )
 
   useFaviconLoop(getBuffer, { fps: 8, previewCanvasRef, render })
 

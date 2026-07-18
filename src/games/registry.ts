@@ -3,6 +3,7 @@ import { invadersGame } from './invaders'
 import { lifeGame } from './life'
 import { puyoGame } from './puyo'
 import { roguelikeGame } from './roguelike'
+import { screensaverGame } from './screensaver'
 import { snakeGame } from './snake'
 import { tetrisGame } from './tetris'
 import { timerGame } from './timer'
@@ -17,6 +18,7 @@ export const GAMES: GameDefinition[] = [
   invadersGame,
   roguelikeGame,
   timerGame,
+  screensaverGame,
 ]
 
 export function getGameById(id: string): GameDefinition | undefined {
