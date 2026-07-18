@@ -22,6 +22,7 @@ import org.json.JSONObject
 import org.json.JSONTokener
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
@@ -137,8 +138,7 @@ class MainActivity : AppCompatActivity() {
     private fun navigateTo(input: String) {
         val trimmed = input.trim()
         if (trimmed.isEmpty()) return
-        val url = if (trimmed.contains("://")) trimmed else "https://$trimmed"
-        webView.loadUrl(url)
+        webView.loadUrl(destinationUrl(trimmed))
         urlView.clearFocus()
         (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
             .hideSoftInputFromWindow(urlView.windowToken, 0)
@@ -207,6 +207,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        /**
+         * URL らしい入力はそのまま（スキームがなければ https:// を補って）開き、
+         * それ以外は Google 検索の URL にする
+         */
+        fun destinationUrl(input: String): String {
+            if (input.contains("://")) return input
+            val host = input.takeWhile { it != '/' && it != '?' && it != '#' }
+            val looksLikeUrl = input.none { it.isWhitespace() } &&
+                (host.contains(".") || host == "localhost" || host.startsWith("localhost:"))
+            if (looksLikeUrl) return "https://$input"
+            return "https://www.google.com/search?q=" + URLEncoder.encode(input, "UTF-8")
+        }
+
         private const val HOME_URL = "https://super-favicon.com/"
         private const val POLL_INTERVAL_MS = 300L
 
