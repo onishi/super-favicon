@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
@@ -33,6 +34,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var titleView: TextView
     private lateinit var lockView: TextView
     private lateinit var urlView: EditText
+    private lateinit var backButton: ImageButton
+    private lateinit var forwardButton: ImageButton
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var webView: WebView
 
@@ -59,6 +62,8 @@ class MainActivity : AppCompatActivity() {
         titleView = findViewById(R.id.title_view)
         lockView = findViewById(R.id.lock_view)
         urlView = findViewById(R.id.url_view)
+        backButton = findViewById(R.id.btn_back)
+        forwardButton = findViewById(R.id.btn_forward)
         swipeRefresh = findViewById(R.id.swipe_refresh)
         webView = findViewById(R.id.web_view)
 
@@ -67,9 +72,22 @@ class MainActivity : AppCompatActivity() {
             webView.reload()
         }
 
-        // 赤ドット（Web版の「タイトルへ戻る」に相当）はホームへ戻る
-        findViewById<android.view.View>(R.id.dot_home).setOnClickListener {
+        // ナビゲーションボタン。URL 編集中にタップされた場合は編集を終えてから遷移する
+        findViewById<ImageButton>(R.id.btn_home).setOnClickListener {
+            exitUrlEditing()
             webView.loadUrl(HOME_URL)
+        }
+        backButton.setOnClickListener {
+            exitUrlEditing()
+            webView.goBack()
+        }
+        forwardButton.setOnClickListener {
+            exitUrlEditing()
+            webView.goForward()
+        }
+        findViewById<ImageButton>(R.id.btn_reload).setOnClickListener {
+            exitUrlEditing()
+            webView.reload()
         }
 
         webView.settings.apply {
@@ -83,10 +101,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 lockView.visibility =
                     if (url.startsWith("https://")) android.view.View.VISIBLE else android.view.View.GONE
+                updateNavButtons()
             }
 
             override fun onPageFinished(view: WebView, url: String) {
                 swipeRefresh.isRefreshing = false
+                updateNavButtons()
             }
         }
 
@@ -118,6 +138,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             webView.restoreState(savedInstanceState)
         }
+        updateNavButtons()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -144,9 +165,22 @@ class MainActivity : AppCompatActivity() {
         val trimmed = input.trim()
         if (trimmed.isEmpty()) return
         webView.loadUrl(destinationUrl(trimmed))
+        exitUrlEditing()
+    }
+
+    /** URL バーの編集を終了する（フォーカスを外して IME を閉じる） */
+    private fun exitUrlEditing() {
         urlView.clearFocus()
         (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
             .hideSoftInputFromWindow(urlView.windowToken, 0)
+    }
+
+    /** 戻る/進むの可否に合わせてボタンの有効状態と濃さを更新する */
+    private fun updateNavButtons() {
+        backButton.isEnabled = webView.canGoBack()
+        backButton.alpha = if (webView.canGoBack()) 1f else 0.3f
+        forwardButton.isEnabled = webView.canGoForward()
+        forwardButton.alpha = if (webView.canGoForward()) 1f else 0.3f
     }
 
     /** evaluateJavascript の結果（JSON文字列リテラル）からタイトルと favicon href を取り出す */
