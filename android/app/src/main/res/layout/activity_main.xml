@@ -71,12 +71,14 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- アドレスバー: ナビゲーションボタン + ピル型の URL 表示（編集可能） -->
+        <!-- アドレスバー: ナビゲーションボタン + ピル型の URL 表示（編集可能）。
+             URL 編集中はボタンを畳んでピルを全幅に広げる（animateLayoutChanges で開閉をアニメーション） -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
+            android:animateLayoutChanges="true"
             android:padding="8dp"
             android:paddingStart="12dp"
             android:paddingEnd="12dp"
@@ -157,6 +159,17 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="@string/reload_description"
                 android:src="@drawable/ic_refresh"
+                app:tint="@color/browser_text" />
+
+            <!-- URL 編集中のみ表示。編集を破棄して元の URL 表示に戻す -->
+            <ImageButton
+                android:id="@+id/btn_cancel_edit"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="@string/cancel_edit_description"
+                android:src="@drawable/ic_close"
+                android:visibility="gone"
                 app:tint="@color/browser_text" />
         </LinearLayout>
 

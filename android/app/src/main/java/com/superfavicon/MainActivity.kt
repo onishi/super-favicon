@@ -34,8 +34,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var titleView: TextView
     private lateinit var lockView: TextView
     private lateinit var urlView: EditText
+    private lateinit var homeButton: ImageButton
     private lateinit var backButton: ImageButton
     private lateinit var forwardButton: ImageButton
+    private lateinit var reloadButton: ImageButton
+    private lateinit var cancelEditButton: ImageButton
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var webView: WebView
 
@@ -62,8 +65,11 @@ class MainActivity : AppCompatActivity() {
         titleView = findViewById(R.id.title_view)
         lockView = findViewById(R.id.lock_view)
         urlView = findViewById(R.id.url_view)
+        homeButton = findViewById(R.id.btn_home)
         backButton = findViewById(R.id.btn_back)
         forwardButton = findViewById(R.id.btn_forward)
+        reloadButton = findViewById(R.id.btn_reload)
+        cancelEditButton = findViewById(R.id.btn_cancel_edit)
         swipeRefresh = findViewById(R.id.swipe_refresh)
         webView = findViewById(R.id.web_view)
 
@@ -72,22 +78,37 @@ class MainActivity : AppCompatActivity() {
             webView.reload()
         }
 
-        // ナビゲーションボタン。URL 編集中にタップされた場合は編集を終えてから遷移する
-        findViewById<ImageButton>(R.id.btn_home).setOnClickListener {
-            exitUrlEditing()
+        homeButton.setOnClickListener {
             webView.loadUrl(HOME_URL)
         }
         backButton.setOnClickListener {
-            exitUrlEditing()
             webView.goBack()
         }
         forwardButton.setOnClickListener {
-            exitUrlEditing()
             webView.goForward()
         }
-        findViewById<ImageButton>(R.id.btn_reload).setOnClickListener {
-            exitUrlEditing()
+        reloadButton.setOnClickListener {
             webView.reload()
+        }
+
+        // 編集を破棄して元の URL 表示に戻す
+        cancelEditButton.setOnClickListener {
+            exitUrlEditing()
+        }
+
+        // URL 編集中はナビゲーションボタンを畳んでピルを全幅に広げ、キャンセルボタンだけ出す
+        urlView.setOnFocusChangeListener { _, hasFocus ->
+            val visibility = if (hasFocus) android.view.View.GONE else android.view.View.VISIBLE
+            homeButton.visibility = visibility
+            backButton.visibility = visibility
+            forwardButton.visibility = visibility
+            reloadButton.visibility = visibility
+            cancelEditButton.visibility =
+                if (hasFocus) android.view.View.VISIBLE else android.view.View.GONE
+            if (!hasFocus) {
+                // 編集途中の文字列を捨てて現在のページの URL に戻す
+                urlView.setText(webView.url ?: "")
+            }
         }
 
         webView.settings.apply {
@@ -125,7 +146,10 @@ class MainActivity : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (webView.canGoBack()) {
+                if (urlView.hasFocus()) {
+                    // IME を閉じた後の戻る操作では URL 編集を終了してボタンを戻す
+                    exitUrlEditing()
+                } else if (webView.canGoBack()) {
                     webView.goBack()
                 } else {
                     finish()
@@ -164,8 +188,11 @@ class MainActivity : AppCompatActivity() {
     private fun navigateTo(input: String) {
         val trimmed = input.trim()
         if (trimmed.isEmpty()) return
-        webView.loadUrl(destinationUrl(trimmed))
+        val url = destinationUrl(trimmed)
+        webView.loadUrl(url)
         exitUrlEditing()
+        // フォーカス喪失時の復元で読み込み前の URL に戻ってしまうため、遷移先を明示する
+        urlView.setText(url)
     }
 
     /** URL バーの編集を終了する（フォーカスを外して IME を閉じる） */
