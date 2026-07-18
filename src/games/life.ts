@@ -52,7 +52,7 @@ const DEFAULT_PRESET_INDEX = PRESETS.findIndex((preset) => preset.name === 'ラ�
 
 export const lifeGame: GameDefinition = {
   id: 'life',
-  name: 'ライフゲーム',
+  name: 'ドットライフ',
   create: () => {
     const initialCode = getPixelsCodeFromLocation()
     const hasCustomPattern = initialCode !== null

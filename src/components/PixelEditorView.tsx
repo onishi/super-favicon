@@ -337,7 +337,7 @@ export function PixelEditorView({ onExit, onStartLifeGame }: PixelEditorViewProp
           クリア
         </button>
         <button type="button" onClick={() => onStartLifeGame(code)}>
-          この配置でライフゲームを開始
+          この配置でドットライフを開始
         </button>
       </div>
       <p>Shift + クリックでスポイト（カーソル位置の色をパレットから選択）</p>

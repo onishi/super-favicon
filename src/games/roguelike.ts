@@ -56,7 +56,7 @@ function roomCenter(room: Room): { x: number; y: number } {
 
 export const roguelikeGame: GameDefinition = {
   id: 'roguelike',
-  name: 'ローグライクRPG',
+  name: 'ドットダンジョン',
   create: () => {
     let tiles: Uint8Array
     let playerX: number

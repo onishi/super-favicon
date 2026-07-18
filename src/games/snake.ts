@@ -40,7 +40,7 @@ function randomEmptyCell(occupied: Set<string>): Vec {
 
 export const snakeGame: GameDefinition = {
   id: 'snake',
-  name: 'スネークゲーム',
+  name: 'ドットスネーク',
   create: () => {
     let snake: Vec[]
     let direction: Direction

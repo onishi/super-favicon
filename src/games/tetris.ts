@@ -100,7 +100,7 @@ const SPAWN_X = Math.floor((FIELD_WIDTH - 4) / 2)
 
 export const tetrisGame: GameDefinition = {
   id: 'tetris',
-  name: 'テトリス',
+  name: 'ドット積み上げ',
   create: () => {
     let grid: Uint8Array
     let pieceType: number

@@ -51,7 +51,7 @@ const SPAWN_Y = 1
 
 export const puyoGame: GameDefinition = {
   id: 'puyo',
-  name: 'ぷよぷよ',
+  name: 'ドット連鎖',
   create: () => {
     let grid: Uint8Array
     let pivotX: number
