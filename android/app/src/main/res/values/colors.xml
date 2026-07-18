@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#000000</color>
+
+    <!-- Web版 BrowserChrome（src/index.css）と同じ配色 -->
+    <color name="browser_bg">#FFFFFF</color>
+    <color name="browser_code_bg">#F4F3EC</color>
+    <color name="browser_border">#E5E4E7</color>
+    <color name="browser_text">#6B6375</color>
+    <color name="browser_text_h">#08060D</color>
+    <color name="dot_red">#FF5F57</color>
+    <color name="dot_yellow">#FEBC2E</color>
+    <color name="dot_green">#28C840</color>
+</resources>
