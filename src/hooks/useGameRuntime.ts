@@ -5,7 +5,7 @@ import type { InputState } from './useInputState'
 
 export interface GameRuntime {
   getBuffer: () => PixelBuffer
-  getScore: () => number
+  getScore: () => number | undefined
   getStatusText: () => string | undefined
 }
 
@@ -27,7 +27,7 @@ export function useGameRuntime(game: GameDefinition, input: InputState): GameRun
     return bufferRef.current
   }, [input, game.colorMode])
 
-  const getScore = useCallback(() => instanceRef.current.getScore?.() ?? 0, [])
+  const getScore = useCallback(() => instanceRef.current.getScore?.(), [])
   const getStatusText = useCallback(() => instanceRef.current.getStatusText?.(), [])
 
   return { getBuffer, getScore, getStatusText }

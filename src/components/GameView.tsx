@@ -28,8 +28,8 @@ export function GameView({ game, onExit, isMaximized }: GameViewProps) {
 
   useEffect(() => {
     const updateTitle = () => {
-      const statusText = getStatusText()
-      document.title = `[${statusText ?? getScore()}] ${game.name}`
+      const label = getStatusText() ?? getScore()
+      document.title = label === undefined ? game.name : `[${label}] ${game.name}`
     }
     updateTitle()
     const interval = setInterval(updateTitle, TITLE_UPDATE_INTERVAL_MS)
