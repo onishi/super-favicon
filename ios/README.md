@@ -20,7 +20,7 @@ Favicon とタイトルはページ側で動的に書き換えられる（SUPER-
 
 ## ビルド
 
-Xcode プロジェクトは [XcodeGen](https://github.com/yonaskolb/XcodeGen) で生成する（生成済みの `.xcodeproj` もコミットしてある）。
+Xcode プロジェクトは [XcodeGen](https://github.com/yonaskolb/XcodeGen) で生成する。`.xcodeproj` は生成物のためコミットせず、`project.yml` を管理する（`brew install xcodegen` でインストール）。
 
 ```sh
 cd ios

@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# XcodeGen (project.yml) から生成されるため生成物はコミットしない
+ios/SuperFaviconBrowser.xcodeproj/
