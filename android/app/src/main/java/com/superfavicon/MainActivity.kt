@@ -178,7 +178,7 @@ class MainActivity : AppCompatActivity() {
         val comma = href.indexOf(',')
         if (comma < 0) return null
         val meta = href.substring(0, comma)
-        if (!meta.contains(";base64")) return null // SVG など base64 以外の data URL は非対応
+        if (!meta.contains(";base64")) return null // base64 以外の data URL は非対応（SVG はページ側 JS で PNG に変換済み）
         return runCatching {
             val bytes = Base64.decode(href.substring(comma + 1), Base64.DEFAULT)
             BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
