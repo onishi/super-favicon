@@ -58,4 +58,4 @@ cd android
 
 - `app/src/main/java/com/superfavicon/MainActivity.kt` — WebView の設定、favicon・タイトルのポーリングとデコード、URL バー
 - `app/src/main/res/layout/activity_main.xml` — 画面レイアウト（Guideline 50% で上半分を favicon 領域に）
-- `app/src/main/res/drawable/ic_launcher_foreground.xml` — アプリアイコン（地球儀のドット絵。`scripts/generate-app-icons.py` で生成）
+- `app/src/main/res/drawable/ic_launcher_foreground.xml` / `ic_launcher_background.xml` — アダプティブアイコン。`ios/SuperFaviconBrowser/AppIcon.icon/Assets/favicon_exploler_icon.svg` と同じコンパスの意匠を `svg2vectordrawable` で Vector Drawable 化し、安全領域(66/108)に配置
