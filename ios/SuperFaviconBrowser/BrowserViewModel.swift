@@ -8,6 +8,8 @@ import WebKit
 final class BrowserViewModel: NSObject, ObservableObject {
     static let homeURL = URL(string: "https://super-favicon.com/")!
     private static let pollInterval: TimeInterval = 0.3
+    private static let historyDefaultsKey = "browsingHistory"
+    private static let maxHistoryCount = 100
     private static var applicationUserAgent: String {
         let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
         return "FaviconExplorer/\(version)"
@@ -21,6 +23,7 @@ final class BrowserViewModel: NSObject, ObservableObject {
     @Published var favicon: UIImage?
     @Published var canGoBack = false
     @Published var canGoForward = false
+    @Published private(set) var browsingHistory: [HistoryEntry] = []
 
     /// URL バー編集中はページ側の URL で上書きしない
     var isEditingURL = false
@@ -77,6 +80,7 @@ final class BrowserViewModel: NSObject, ObservableObject {
         webView.navigationDelegate = self
         refreshControl.addTarget(self, action: #selector(reloadForRefresh), for: .valueChanged)
         webView.scrollView.refreshControl = refreshControl
+        loadHistory()
         webView.load(URLRequest(url: Self.homeURL))
         startPolling()
     }
@@ -111,6 +115,29 @@ final class BrowserViewModel: NSObject, ObservableObject {
         guard !trimmed.isEmpty else { return }
         guard let url = Self.destinationURL(for: trimmed) else { return }
         webView.load(URLRequest(url: url))
+    }
+
+    /// URL バーの入力に一致する履歴を新しい順で返す。
+    /// 現在の URL がそのまま入っている編集開始直後は、全履歴を候補にする。
+    func historySuggestions(for input: String) -> [HistoryEntry] {
+        let query = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        if query.isEmpty || query == webView.url?.absoluteString {
+            return browsingHistory
+        }
+        return browsingHistory.filter {
+            $0.title.localizedCaseInsensitiveContains(query)
+                || $0.url.localizedCaseInsensitiveContains(query)
+        }
+    }
+
+    func clearHistory() {
+        browsingHistory = []
+        UserDefaults.standard.removeObject(forKey: Self.historyDefaultsKey)
+    }
+
+    func removeHistory(url: String) {
+        browsingHistory.removeAll { $0.url == url }
+        persistHistory()
     }
 
     /// URL らしい入力はそのまま（スキームがなければ https:// を補って）開き、
@@ -198,11 +225,42 @@ final class BrowserViewModel: NSObject, ObservableObject {
         guard let data = Data(base64Encoded: String(href[href.index(after: comma)...])) else { return nil }
         return UIImage(data: data)
     }
+
+    private func loadHistory() {
+        guard let data = UserDefaults.standard.data(forKey: Self.historyDefaultsKey),
+              let entries = try? JSONDecoder().decode([HistoryEntry].self, from: data)
+        else { return }
+        browsingHistory = entries
+    }
+
+    private func recordHistory(url: URL, title: String?) {
+        guard ["http", "https"].contains(url.scheme?.lowercased() ?? "") else { return }
+        let urlString = url.absoluteString
+        let trimmedTitle = title?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let displayTitle = trimmedTitle.isEmpty ? url.host ?? urlString : trimmedTitle
+        browsingHistory.removeAll { $0.url == urlString }
+        browsingHistory.insert(
+            HistoryEntry(url: urlString, title: displayTitle, visitedAt: Date()),
+            at: 0
+        )
+        if browsingHistory.count > Self.maxHistoryCount {
+            browsingHistory.removeLast(browsingHistory.count - Self.maxHistoryCount)
+        }
+        persistHistory()
+    }
+
+    private func persistHistory() {
+        guard let data = try? JSONEncoder().encode(browsingHistory) else { return }
+        UserDefaults.standard.set(data, forKey: Self.historyDefaultsKey)
+    }
 }
 
 extension BrowserViewModel: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         refreshControl.endRefreshing()
+        if let url = webView.url {
+            recordHistory(url: url, title: webView.title)
+        }
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
@@ -212,4 +270,11 @@ extension BrowserViewModel: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
         refreshControl.endRefreshing()
     }
+}
+
+struct HistoryEntry: Codable, Identifiable {
+    var id: String { url }
+    let url: String
+    let title: String
+    let visitedAt: Date
 }

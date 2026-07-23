@@ -10,6 +10,7 @@ SUPER-FAVICON 専用のブラウザアプリ。画面の上半分に現在のペ
   - アドレスバーはホーム/戻る/進むボタン、ピル型の URL バー、再読み込みボタンの並び（戻る/進むが不可のときは薄く無効表示）
   - URL バーは編集して Enter で移動できる。https のときは 🔒 を表示。URL っぽくない入力は Google 検索する
   - URL 編集中はボタンが畳まれて URL バーが全幅に広がり、✕ ボタン（または端末の戻る操作）で編集をキャンセルできる
+  - URL 編集中は端末内に保存した閲覧履歴を、ページ本体の上へ重ねて新しい順で最大8件表示する（Favicon・ページ本体の領域サイズは変えない）。入力するとタイトル・URLで候補を絞り込め、タップで再訪できる。同じ URL は最新の1件にまとめ、履歴は最大100件まで保持する。各行の削除ボタンで1件ずつ、「消去」で全履歴を削除できる
   - 配色は `src/index.css` の CSS 変数と同じ値で、ライト/ダークモード（values-night）に追従する
 - **残り**: WebView によるページ本体（下に引っ張ると再読み込みできる Pull to Refresh 付き）
 
@@ -56,6 +57,6 @@ cd android
 
 ## 構成ファイル
 
-- `app/src/main/java/com/superfavicon/MainActivity.kt` — WebView の設定、favicon・タイトルのポーリングとデコード、URL バー
+- `app/src/main/java/com/superfavicon/MainActivity.kt` — WebView の設定、favicon・タイトルのポーリングとデコード、URL バー、閲覧履歴の保存
 - `app/src/main/res/layout/activity_main.xml` — 画面レイアウト（Guideline 50% で上半分を favicon 領域に）
 - `app/src/main/res/drawable/ic_launcher_foreground.xml` — アプリアイコン（地球儀のドット絵。`scripts/generate-app-icons.py` で生成）

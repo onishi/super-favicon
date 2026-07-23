@@ -10,6 +10,7 @@ SUPER-FAVICON 専用のブラウザアプリ。画面の上半分に現在のペ
   - アドレスバーはホーム/戻る/進むボタン、ピル型の URL バー、再読み込みボタンの並び（戻る/進むが不可のときは薄く無効表示）
   - URL バーは編集して Enter で移動できる。https のときは 🔒 を表示。URL っぽくない入力は Google 検索する
   - URL 編集中はボタンが畳まれて URL バーが全幅に広がり、✕ ボタンで編集をキャンセルできる
+  - URL 編集中は端末内に保存した閲覧履歴を、ページ本体の上へ重ねて新しい順で最大8件表示する（Favicon・ページ本体の領域サイズは変えない）。入力するとタイトル・URLで候補を絞り込め、タップで再訪できる。同じ URL は最新の1件にまとめ、履歴は最大100件まで保持する。各行の削除ボタンで1件ずつ、「消去」で全履歴を削除できる
   - 配色は `src/index.css` の CSS 変数と同じ値で、ライト/ダークモードに追従する
 - **残り**: WKWebView によるページ本体（下に引っ張ると再読み込みできる Pull to Refresh 付き）
 
@@ -46,7 +47,7 @@ xcodebuild -project SuperFaviconBrowser.xcodeproj \
 - `project.yml` — XcodeGen 定義（ターゲット・Info.plist の内容もここで管理）
 - `SuperFaviconBrowser/SuperFaviconBrowserApp.swift` — エントリポイント
 - `SuperFaviconBrowser/ContentView.swift` — 画面レイアウト（上半分 favicon / タイトル / URL / WebView）
-- `SuperFaviconBrowser/BrowserViewModel.swift` — WKWebView の所有、favicon・タイトルのポーリングとデコード
+- `SuperFaviconBrowser/BrowserViewModel.swift` — WKWebView の所有、favicon・タイトルのポーリングとデコード、閲覧履歴の保存
 - `SuperFaviconBrowser/WebView.swift` — WKWebView の SwiftUI ラッパー
 - `SuperFaviconBrowser/Assets.xcassets` — アプリアイコン（地球儀のドット絵。`scripts/generate-app-icons.py` で生成）
 
