@@ -58,4 +58,4 @@ cd android
 
 - `app/src/main/java/com/superfavicon/MainActivity.kt` — WebView の設定、favicon・タイトルのポーリングとデコード、URL バー
 - `app/src/main/res/layout/activity_main.xml` — 画面レイアウト（Guideline 50% で上半分を favicon 領域に）
-- `app/src/main/res/drawable/ic_launcher_foreground.xml` — アプリアイコン（地球儀のドット絵。`scripts/generate-app-icons.py` で生成）
+- `app/src/main/res/drawable-*dpi/ic_launcher_foreground.png` / `ic_launcher_background.png` — アプリアイコン。iOS版 `ios/SuperFaviconBrowser/Assets.xcassets/AppIcon.appiconset/icon.png` と同じロゴ画像から、adaptive icon 用に「F」のドット絵部分（foreground、セーフゾーン内に収まるよう縮小）とグリッド背景（background、フルブリード）に分離して密度別に書き出したもの。ベクター原本は [`assets/AppIcon.svg`](../assets/AppIcon.svg)

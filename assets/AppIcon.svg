@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="1024"
+     height="1024"
+     viewBox="0 0 1024 1024"
+     role="img"
+     aria-labelledby="title desc">
+  <title id="title">Explorer pixel F icon</title>
+  <desc id="desc">A blue pixel letter F on an edge-to-edge eight by eight grid.</desc>
+
+  <defs>
+    <linearGradient id="tile" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f8fbff"/>
+    </linearGradient>
+    <linearGradient id="pale" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#eaf5ff"/>
+      <stop offset="1" stop-color="#c9e1f7"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#008cf1"/>
+      <stop offset="1" stop-color="#0066db"/>
+    </linearGradient>
+    <linearGradient id="deepBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#075bd9"/>
+      <stop offset="1" stop-color="#0737b9"/>
+    </linearGradient>
+    <linearGradient id="sky" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#35a9f6"/>
+      <stop offset="1" stop-color="#0a8de8"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#28b2ed"/>
+      <stop offset="1" stop-color="#12d8de"/>
+    </linearGradient>
+    <linearGradient id="lightCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0" stop-color="#4bcdf1"/>
+      <stop offset="1" stop-color="#72eff1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 8 × 8 grid, 128 px per cell, filling the entire canvas. -->
+  <rect width="1024" height="1024" fill="url(#tile)"/>
+
+  <!-- Soft-blue decorative cells. -->
+  <g fill="url(#pale)">
+    <rect x="0" y="0" width="128" height="128"/>
+    <rect x="896" y="0" width="128" height="128"/>
+    <rect x="128" y="128" width="128" height="128"/>
+    <rect x="0" y="256" width="128" height="128"/>
+    <rect x="896" y="384" width="128" height="128"/>
+    <rect x="0" y="640" width="128" height="128"/>
+    <rect x="768" y="768" width="128" height="128"/>
+    <rect x="0" y="896" width="128" height="128"/>
+    <rect x="640" y="896" width="128" height="128"/>
+    <rect x="896" y="896" width="128" height="128"/>
+  </g>
+
+  <!-- Pixel F. -->
+  <g>
+    <rect x="384" y="128" width="128" height="128" fill="url(#blue)"/>
+    <rect x="512" y="128" width="128" height="128" fill="url(#sky)"/>
+    <rect x="640" y="128" width="128" height="128" fill="url(#lightCyan)"/>
+    <rect x="768" y="128" width="128" height="128" fill="url(#cyan)"/>
+
+    <rect x="256" y="256" width="128" height="128" fill="url(#blue)"/>
+    <rect x="384" y="256" width="128" height="128" fill="url(#lightCyan)"/>
+    <rect x="512" y="256" width="128" height="128" fill="url(#deepBlue)"/>
+    <rect x="640" y="256" width="128" height="128" fill="url(#blue)"/>
+    <rect x="768" y="256" width="128" height="128" fill="url(#cyan)"/>
+
+    <rect x="256" y="384" width="128" height="128" fill="url(#sky)"/>
+    <rect x="384" y="384" width="128" height="128" fill="url(#blue)"/>
+
+    <rect x="256" y="512" width="128" height="128" fill="url(#blue)"/>
+    <rect x="384" y="512" width="128" height="128" fill="url(#sky)"/>
+    <rect x="512" y="512" width="128" height="128" fill="url(#sky)"/>
+    <rect x="640" y="512" width="128" height="128" fill="url(#lightCyan)"/>
+
+    <rect x="256" y="640" width="128" height="128" fill="url(#sky)"/>
+    <rect x="384" y="640" width="128" height="128" fill="url(#deepBlue)"/>
+    <rect x="512" y="640" width="128" height="128" fill="url(#blue)"/>
+
+    <rect x="256" y="768" width="128" height="128" fill="url(#blue)"/>
+    <rect x="384" y="768" width="128" height="128" fill="url(#deepBlue)"/>
+    <rect x="256" y="896" width="128" height="128" fill="url(#deepBlue)"/>
+    <rect x="384" y="896" width="128" height="128" fill="url(#deepBlue)"/>
+  </g>
+
+  <!-- Internal grid lines only; no outer frame. -->
+  <path d="
+    M0 128H1024 M0 256H1024 M0 384H1024 M0 512H1024
+    M0 640H1024 M0 768H1024 M0 896H1024
+    M128 0V1024 M256 0V1024 M384 0V1024 M512 0V1024
+    M640 0V1024 M768 0V1024 M896 0V1024"
+    fill="none" stroke="#cfe2f5" stroke-width="3"/>
+</svg>
