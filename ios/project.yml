@@ -13,6 +13,8 @@ targets:
       path: SuperFaviconBrowser/Info.plist
       properties:
         CFBundleDisplayName: FaviconExplorer
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         UILaunchScreen: {}
         # iPad マルチタスキング対応には iPad で4方向すべての指定が必須
         UISupportedInterfaceOrientations:
