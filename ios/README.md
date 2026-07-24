@@ -48,7 +48,7 @@ xcodebuild -project SuperFaviconBrowser.xcodeproj \
 - `SuperFaviconBrowser/ContentView.swift` — 画面レイアウト（上半分 favicon / タイトル / URL / WebView）
 - `SuperFaviconBrowser/BrowserViewModel.swift` — WKWebView の所有、favicon・タイトルのポーリングとデコード
 - `SuperFaviconBrowser/WebView.swift` — WKWebView の SwiftUI ラッパー
-- `SuperFaviconBrowser/Assets.xcassets` — アプリアイコン（地球儀のドット絵。`scripts/generate-app-icons.py` で生成）
+- `SuperFaviconBrowser/Assets.xcassets` — アプリアイコン（ロゴのドット絵。Android版とアイコン画像を共有している）
 
 ## 制限事項
 
