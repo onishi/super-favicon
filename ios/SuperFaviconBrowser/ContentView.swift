@@ -10,12 +10,27 @@ struct ContentView: View {
                 .frame(maxHeight: .infinity)
             tabBar
             toolbar
-            WebView(webView: model.webView)
-                .frame(maxHeight: .infinity)
+            // URL 編集中は履歴を WebView に重ねて出す（WebView を外すと favicon の
+            // アニメーションが止まってしまうため、入れ替えではなく上に載せる）
+            ZStack(alignment: .top) {
+                WebView(webView: model.webView)
+                if urlFieldFocused {
+                    historyPanel
+                }
+            }
+            .frame(maxHeight: .infinity)
         }
         .background(Theme.bg)
         .onChange(of: urlFieldFocused) { _, focused in
             model.isEditingURL = focused
+            // 編集を始めた直後は現在の URL がそのまま入っているので、絞り込まず最近の履歴を出す
+            model.urlTextEdited = false
+        }
+        .onChange(of: model.urlText) { _, _ in
+            // 編集中のポーリング更新は止めているため、この変化はユーザーの入力によるもの
+            if urlFieldFocused {
+                model.urlTextEdited = true
+            }
         }
     }
 
@@ -137,6 +152,68 @@ struct ContentView: View {
         .padding(.vertical, 4)
         .padding(.horizontal, 12)
         .background(Theme.codeBg, in: Capsule())
+    }
+
+    /// URL 編集中に出す閲覧履歴の一覧。タップでそのページへ移動、スワイプで1件削除できる
+    private var historyPanel: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("履歴")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(Theme.text)
+                Spacer()
+                if !model.historyEntries.isEmpty {
+                    Button("すべて削除") {
+                        model.clearHistory()
+                    }
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.accent)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(Theme.codeBg)
+
+            if model.historySuggestions.isEmpty {
+                Text(model.historyEntries.isEmpty ? "履歴はまだありません" : "一致する履歴はありません")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.text)
+                    .padding(16)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            } else {
+                List {
+                    ForEach(model.historySuggestions) { entry in
+                        Button {
+                            model.navigate(to: entry.url)
+                            urlFieldFocused = false
+                        } label: {
+                            historyRow(entry)
+                        }
+                        .listRowBackground(Theme.bg)
+                    }
+                    .onDelete { offsets in
+                        model.deleteHistorySuggestions(at: offsets)
+                    }
+                }
+                .listStyle(.plain)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(Theme.bg)
+    }
+
+    private func historyRow(_ entry: HistoryEntry) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(entry.displayTitle)
+                .font(.system(size: 13))
+                .foregroundStyle(Theme.textHeading)
+                .lineLimit(1)
+            Text(entry.url)
+                .font(.system(size: 11, design: .monospaced))
+                .foregroundStyle(Theme.text)
+                .lineLimit(1)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func toolbarButton(

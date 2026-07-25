@@ -5,4 +5,5 @@
     <color name="browser_border">#2E303A</color>
     <color name="browser_text">#9CA3AF</color>
     <color name="browser_text_h">#F3F4F6</color>
+    <color name="browser_accent">#C084FC</color>
 </resources>

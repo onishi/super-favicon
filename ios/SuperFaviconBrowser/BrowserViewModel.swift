@@ -21,12 +21,23 @@ final class BrowserViewModel: NSObject, ObservableObject {
     @Published var favicon: UIImage?
     @Published var canGoBack = false
     @Published var canGoForward = false
+    @Published private(set) var historyEntries: [HistoryEntry] = []
 
     /// URL バー編集中はページ側の URL で上書きしない
     var isEditingURL = false
 
+    /// 編集開始後にユーザーが URL バーの文字を変えたか。
+    /// 変えていなければ（現在の URL がそのまま入っている状態なら）最近の履歴を絞り込まずに出す
+    @Published var urlTextEdited = false
+
+    private let history = BrowserHistory()
     private var timer: Timer?
     private var lastFaviconHref: String?
+
+    /// URL バーの下に出す履歴候補
+    var historySuggestions: [HistoryEntry] {
+        BrowserHistory.suggestions(from: historyEntries, query: urlTextEdited ? urlText : "")
+    }
 
     /// SVG の favicon はネイティブ側（UIImage / BitmapFactory）でデコードできないため、
     /// ページ内で canvas に描いて PNG data URL に変換して返す。変換は画像読み込み待ちで
@@ -78,6 +89,7 @@ final class BrowserViewModel: NSObject, ObservableObject {
         refreshControl.addTarget(self, action: #selector(reloadForRefresh), for: .valueChanged)
         webView.scrollView.refreshControl = refreshControl
         webView.load(URLRequest(url: Self.homeURL))
+        historyEntries = history.entries
         startPolling()
     }
 
@@ -111,6 +123,26 @@ final class BrowserViewModel: NSObject, ObservableObject {
         guard !trimmed.isEmpty else { return }
         guard let url = Self.destinationURL(for: trimmed) else { return }
         webView.load(URLRequest(url: url))
+    }
+
+    /// 履歴候補のうち offsets の位置（スワイプ削除）にあたるものを履歴から消す
+    func deleteHistorySuggestions(at offsets: IndexSet) {
+        let suggestions = historySuggestions
+        let urls = offsets.compactMap { suggestions.indices.contains($0) ? suggestions[$0].url : nil }
+        history.remove(urls: Set(urls))
+        historyEntries = history.entries
+    }
+
+    func clearHistory() {
+        history.clear()
+        historyEntries = history.entries
+    }
+
+    /// ページの読み込み完了時に履歴へ記録する
+    private func recordHistory() {
+        guard let url = webView.url?.absoluteString else { return }
+        history.record(url: url, title: webView.title ?? "")
+        historyEntries = history.entries
     }
 
     /// URL らしい入力はそのまま（スキームがなければ https:// を補って）開き、
@@ -203,6 +235,7 @@ final class BrowserViewModel: NSObject, ObservableObject {
 extension BrowserViewModel: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         refreshControl.endRefreshing()
+        recordHistory()
     }
 
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {

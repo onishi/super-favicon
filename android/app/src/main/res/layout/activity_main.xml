@@ -194,4 +194,72 @@
             android:layout_height="match_parent" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <!-- URL 編集中の履歴一覧。WebView を外すと favicon のアニメーションが止まってしまうため、
+         入れ替えではなく同じ領域に重ねて表示する -->
+    <LinearLayout
+        android:id="@+id/history_panel"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:background="@color/browser_bg"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/bar_container"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:background="@color/browser_code_bg">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="@string/history_title"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:textColor="@color/browser_text" />
+
+            <TextView
+                android:id="@+id/btn_clear_history"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="4dp"
+                android:text="@string/history_clear"
+                android:textSize="12sp"
+                android:textColor="@color/browser_accent" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/history_empty_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:textSize="12sp"
+            android:textColor="@color/browser_text"
+            android:visibility="gone" />
+
+        <ScrollView
+            android:id="@+id/history_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:id="@+id/history_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

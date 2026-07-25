@@ -7,6 +7,7 @@ enum Theme {
     static let border = dynamic(light: 0xE5E4E7, dark: 0x2E303A)
     static let text = dynamic(light: 0x6B6375, dark: 0x9CA3AF)
     static let textHeading = dynamic(light: 0x08060D, dark: 0xF3F4F6)
+    static let accent = dynamic(light: 0xAA3BFF, dark: 0xC084FC)
 
     private static func dynamic(light: UInt32, dark: UInt32) -> Color {
         Color(uiColor: UIColor { trait in

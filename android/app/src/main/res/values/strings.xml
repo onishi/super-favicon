@@ -9,4 +9,9 @@
     <string name="reload_description">再読み込み</string>
     <string name="cancel_edit_description">入力をキャンセル</string>
     <string name="lock_icon">🔒</string>
+    <string name="history_title">履歴</string>
+    <string name="history_clear">すべて削除</string>
+    <string name="history_delete_description">この履歴を削除</string>
+    <string name="history_empty">履歴はまだありません</string>
+    <string name="history_no_match">一致する履歴はありません</string>
 </resources>

@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Base64
 import android.view.KeyEvent
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.webkit.WebView
@@ -16,9 +17,11 @@ import android.webkit.WebViewClient
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.widget.doAfterTextChanged
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import org.json.JSONObject
 import org.json.JSONTokener
@@ -41,9 +44,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var cancelEditButton: ImageButton
     private lateinit var swipeRefresh: SwipeRefreshLayout
     private lateinit var webView: WebView
+    private lateinit var historyPanel: View
+    private lateinit var historyListView: LinearLayout
+    private lateinit var historyEmptyView: TextView
+    private lateinit var clearHistoryButton: TextView
 
     private val handler = Handler(Looper.getMainLooper())
     private val faviconExecutor = Executors.newSingleThreadExecutor()
+
+    private lateinit var history: HistoryStore
+
+    /**
+     * 編集開始後にユーザーが URL バーの文字を変えたか。
+     * 変えていなければ（現在の URL がそのまま入っている状態なら）最近の履歴を絞り込まずに出す
+     */
+    private var urlTextEdited = false
 
     /** 直前に表示した favicon の href。同じものを何度もデコードしないためのキャッシュキー */
     private var lastFaviconHref: String? = null
@@ -72,6 +87,16 @@ class MainActivity : AppCompatActivity() {
         cancelEditButton = findViewById(R.id.btn_cancel_edit)
         swipeRefresh = findViewById(R.id.swipe_refresh)
         webView = findViewById(R.id.web_view)
+        historyPanel = findViewById(R.id.history_panel)
+        historyListView = findViewById(R.id.history_list)
+        historyEmptyView = findViewById(R.id.history_empty_view)
+        clearHistoryButton = findViewById(R.id.btn_clear_history)
+
+        history = HistoryStore(this)
+        clearHistoryButton.setOnClickListener {
+            history.clear()
+            renderHistory()
+        }
 
         // Pull to Refresh: 現在のページを再読み込みする
         swipeRefresh.setOnRefreshListener {
@@ -96,18 +121,32 @@ class MainActivity : AppCompatActivity() {
             exitUrlEditing()
         }
 
-        // URL 編集中はナビゲーションボタンを畳んでピルを全幅に広げ、キャンセルボタンだけ出す
+        // URL 編集中はナビゲーションボタンを畳んでピルを全幅に広げ、キャンセルボタンだけ出す。
+        // あわせて WebView の上に履歴一覧を重ねて出す
         urlView.setOnFocusChangeListener { _, hasFocus ->
-            val visibility = if (hasFocus) android.view.View.GONE else android.view.View.VISIBLE
+            val visibility = if (hasFocus) View.GONE else View.VISIBLE
             homeButton.visibility = visibility
             backButton.visibility = visibility
             forwardButton.visibility = visibility
             reloadButton.visibility = visibility
-            cancelEditButton.visibility =
-                if (hasFocus) android.view.View.VISIBLE else android.view.View.GONE
-            if (!hasFocus) {
+            cancelEditButton.visibility = if (hasFocus) View.VISIBLE else View.GONE
+            historyPanel.visibility = if (hasFocus) View.VISIBLE else View.GONE
+            if (hasFocus) {
+                // 編集を始めた直後は現在の URL がそのまま入っているので、絞り込まず最近の履歴を出す
+                urlTextEdited = false
+                renderHistory()
+            } else {
                 // 編集途中の文字列を捨てて現在のページの URL に戻す
                 urlView.setText(webView.url ?: "")
+            }
+        }
+
+        // 入力に合わせて履歴候補を絞り込む（編集中はポーリングで URL を上書きしないため、
+        // ここでの変化はユーザーの入力によるもの）
+        urlView.doAfterTextChanged {
+            if (urlView.hasFocus()) {
+                urlTextEdited = true
+                renderHistory()
             }
         }
 
@@ -130,6 +169,7 @@ class MainActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView, url: String) {
                 swipeRefresh.isRefreshing = false
                 updateNavButtons()
+                history.record(url, view.title ?: "")
             }
         }
 
@@ -202,6 +242,36 @@ class MainActivity : AppCompatActivity() {
         urlView.clearFocus()
         (getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
             .hideSoftInputFromWindow(urlView.windowToken, 0)
+    }
+
+    /** URL バーの入力に合う履歴候補を一覧に描き直す */
+    private fun renderHistory() {
+        val suggestions = HistoryStore.suggestions(
+            history.entries,
+            if (urlTextEdited) urlView.text.toString() else ""
+        )
+
+        historyListView.removeAllViews()
+        suggestions.forEach { entry ->
+            val row = layoutInflater.inflate(R.layout.item_history, historyListView, false)
+            row.findViewById<TextView>(R.id.history_item_title).text = entry.displayTitle
+            row.findViewById<TextView>(R.id.history_item_url).text = entry.url
+            row.findViewById<View>(R.id.history_item_body).setOnClickListener {
+                navigateTo(entry.url)
+            }
+            row.findViewById<ImageButton>(R.id.history_item_delete).setOnClickListener {
+                history.remove(entry.url)
+                renderHistory()
+            }
+            historyListView.addView(row)
+        }
+
+        historyEmptyView.visibility = if (suggestions.isEmpty()) View.VISIBLE else View.GONE
+        historyEmptyView.setText(
+            if (history.entries.isEmpty()) R.string.history_empty else R.string.history_no_match
+        )
+        clearHistoryButton.visibility =
+            if (history.entries.isEmpty()) View.GONE else View.VISIBLE
     }
 
     /** 戻る/進むの可否に合わせてボタンの有効状態と濃さを更新する */

@@ -10,10 +10,21 @@ SUPER-FAVICON 専用のブラウザアプリ。画面の上半分に現在のペ
   - アドレスバーはホーム/戻る/進むボタン、ピル型の URL バー、再読み込みボタンの並び（戻る/進むが不可のときは薄く無効表示）
   - URL バーは編集して Enter で移動できる。https のときは 🔒 を表示。URL っぽくない入力は Google 検索する
   - URL 編集中はボタンが畳まれて URL バーが全幅に広がり、✕ ボタン（または端末の戻る操作）で編集をキャンセルできる
+  - URL 編集中は WebView の上に閲覧履歴の一覧が重なって出る（履歴機能。詳細は下記）
   - 配色は `src/index.css` の CSS 変数と同じ値で、ライト/ダークモード（values-night）に追従する
 - **残り**: WebView によるページ本体（下に引っ張ると再読み込みできる Pull to Refresh 付き）
 
 Favicon とタイトルはページ側で動的に書き換えられる（SUPER-FAVICON はこれでゲーム画面をアニメーションさせる）ため、300ms 間隔で JavaScript を評価してポーリングし、data URL の favicon をその場でデコードして表示する。SVG の favicon（例: SUPER-FAVICON の初期表示 `favicon.svg`）は BitmapFactory でデコードできないため、ページ内で canvas に描いて PNG data URL に変換してから受け取る。
+
+## URL バーの履歴
+
+URL バーをタップして編集を始めると、WebView に重ねて閲覧履歴の一覧が出る。編集を終える（✕ / 端末の戻る操作 / 移動）と閉じる。WebView を画面から外すと favicon のアニメーションが止まってしまうため、表示の入れ替えではなく重ね表示にしている。
+
+- 履歴はページの読み込み完了時（`onPageFinished`）に「URL + タイトル + 時刻」で記録する。同じ URL は1件にまとめて先頭へ繰り上げ、最大 200 件まで保持する（`SharedPreferences` に JSON で永続化）
+  - SUPER-FAVICON はスコア表示のためタイトルを常時書き換えるが、記録するのは読み込み完了時点のタイトルのみ（`[100] ドットフラップ` のようなスコア付きタイトルは残らない）
+  - ページ内の履歴操作（SPA の pushState によるゲーム選択など）は記録しない
+- 一覧は新しい順に最大 20 件。URL バーに文字を入力すると、URL とタイトルの部分一致（大文字小文字を無視）で絞り込む。編集を始めた直後（現在の URL がそのまま入っている状態）は絞り込まずに最近の履歴を出す
+- 行をタップするとその URL へ移動する。行の ✕ ボタンで1件削除、ヘッダの「すべて削除」で全消去できる
 
 WebView は通常の User-Agent の末尾に `FaviconExplorer/<version>` を追加する。SUPER-FAVICON の Web 側はこのトークンを検出すると、ネイティブ側と重複する擬似タブバー・URLバーを表示しない。
 
@@ -57,5 +68,7 @@ cd android
 ## 構成ファイル
 
 - `app/src/main/java/com/superfavicon/MainActivity.kt` — WebView の設定、favicon・タイトルのポーリングとデコード、URL バー
+- `app/src/main/java/com/superfavicon/HistoryStore.kt` — 閲覧履歴の保持・永続化（SharedPreferences）と候補の絞り込み
 - `app/src/main/res/layout/activity_main.xml` — 画面レイアウト（Guideline 50% で上半分を favicon 領域に）
+- `app/src/main/res/layout/item_history.xml` — 履歴一覧の1行（タイトル + URL + 削除ボタン）
 - `app/src/main/res/drawable-*dpi/ic_launcher_foreground.png` / `ic_launcher_background.png` — アプリアイコン。iOS版 `ios/SuperFaviconBrowser/Assets.xcassets/AppIcon.appiconset/icon.png` と同じロゴ画像から、adaptive icon 用に「F」のドット絵部分（foreground、セーフゾーン内に収まるよう縮小）とグリッド背景（background、フルブリード）に分離して密度別に書き出したもの。ベクター原本は [`assets/AppIcon.svg`](../assets/AppIcon.svg)
