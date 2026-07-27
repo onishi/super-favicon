@@ -215,9 +215,18 @@ export const invadersGame: GameDefinition = {
           }
         }
 
-        const lowestEnemyY = formationBaseY + (ENEMY_ROWS - 1) * ENEMY_SPACING_Y
-        if (lowestEnemyY >= DANGER_Y) {
-          die()
+        let lowestAliveRow = -1
+        for (let r = ENEMY_ROWS - 1; r >= 0; r--) {
+          if (aliveGrid.some((alive, idx) => alive && Math.floor(idx / ENEMY_COLS) === r)) {
+            lowestAliveRow = r
+            break
+          }
+        }
+        if (lowestAliveRow >= 0) {
+          const lowestEnemyY = formationBaseY + lowestAliveRow * ENEMY_SPACING_Y
+          if (lowestEnemyY >= DANGER_Y) {
+            die()
+          }
         }
       },
       render: (buffer) => {
