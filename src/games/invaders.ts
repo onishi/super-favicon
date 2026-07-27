@@ -17,7 +17,6 @@ const ENEMY_SPACING_X = 2
 const ENEMY_SPACING_Y = 2
 const ENEMY_START_X = 3
 const ENEMY_START_Y = 1
-const ENEMY_MAX_X = LOGICAL_GRID_SIZE - 1 - (ENEMY_COLS - 1) * ENEMY_SPACING_X
 
 const PLAYER_Y = LOGICAL_GRID_SIZE - 1
 // If the formation's lowest row reaches this deep, it's considered to have
@@ -204,8 +203,21 @@ export const invadersGame: GameDefinition = {
               : Math.max(FORMATION_MIN_STEP_INTERVAL, FORMATION_STEP_INTERVAL - waveCount * 2)
           if (formationFrameCount >= stepInterval) {
             formationFrameCount = 0
-            const atRightEdge = formationDirection === 1 && formationBaseX >= ENEMY_MAX_X
-            const atLeftEdge = formationDirection === -1 && formationBaseX <= 0
+            let minAliveCol = ENEMY_COLS - 1
+            let maxAliveCol = 0
+            for (let c = 0; c < ENEMY_COLS; c++) {
+              const colAlive = aliveGrid.some((alive, idx) => alive && idx % ENEMY_COLS === c)
+              if (!colAlive) continue
+              minAliveCol = Math.min(minAliveCol, c)
+              maxAliveCol = Math.max(maxAliveCol, c)
+            }
+            // Bounce only once the outermost surviving column reaches the
+            // screen edge, so killing off an edge column lets the rest of
+            // the formation travel further before turning around.
+            const rightBoundX = LOGICAL_GRID_SIZE - 1 - maxAliveCol * ENEMY_SPACING_X
+            const leftBoundX = -minAliveCol * ENEMY_SPACING_X
+            const atRightEdge = formationDirection === 1 && formationBaseX >= rightBoundX
+            const atLeftEdge = formationDirection === -1 && formationBaseX <= leftBoundX
             if (atRightEdge || atLeftEdge) {
               formationDirection = formationDirection === 1 ? -1 : 1
               formationBaseY += 1
