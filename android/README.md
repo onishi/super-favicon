@@ -24,7 +24,7 @@ WebView は通常の User-Agent の末尾に `FaviconExplorer/<version>` を追�
 
 ## ビルド
 
-JDK 17 と Android SDK（compileSdk 35）が必要。デフォルトの JDK が 17 以外の場合は `JAVA_HOME` で指定する（例: Homebrew の場合 `JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home ./gradlew …`）。
+JDK 17 と Android SDK（compileSdk 36）が必要。アプリは Google Play の 2026 年要件に合わせて Android 16（targetSdk 36）を対象とする。デフォルトの JDK が 17 以外の場合は `JAVA_HOME` で指定する（例: Homebrew の場合 `JAVA_HOME=/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home ./gradlew …`）。
 
 ```sh
 cd android
