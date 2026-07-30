@@ -22,7 +22,7 @@ val gitCommitCount = providers.exec {
 
 android {
     namespace = "com.superfavicon"
-    compileSdk = 35
+    compileSdk = 36
 
     buildFeatures {
         buildConfig = true
@@ -31,7 +31,7 @@ android {
     defaultConfig {
         applicationId = "com.superfavicon"
         minSdk = 26
-        targetSdk = 35
+        targetSdk = 36
         versionCode = gitCommitCount
         versionName = "1.1"
     }
