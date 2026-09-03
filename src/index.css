@@ -66,6 +66,19 @@ body {
   margin: 0;
 }
 
+.site-footer {
+  text-align: center;
+  padding: 10px 0;
+  font-size: 13px;
+  color: var(--text);
+}
+
+.site-footer a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 h1,
 h2 {
   font-family: var(--heading);
