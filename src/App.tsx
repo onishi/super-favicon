@@ -51,7 +51,6 @@ function App() {
   }, [selectGame])
 
   return (
-    <>
     <BrowserChrome
       isMaximized={isMaximized}
       onMaximize={() => setIsMaximized(true)}
@@ -73,12 +72,6 @@ function App() {
         )}
       </main>
     </BrowserChrome>
-    {!isMaximized && (
-      <footer className="site-footer">
-        <a href="https://wagaya.org/">wagaya.org</a>
-      </footer>
-    )}
-    </>
   )
 }
 
