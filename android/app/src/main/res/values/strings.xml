@@ -8,5 +8,10 @@
     <string name="go_forward_description">進む</string>
     <string name="reload_description">再読み込み</string>
     <string name="cancel_edit_description">入力をキャンセル</string>
+    <string name="history_title">履歴</string>
+    <string name="clear_history">消去</string>
+    <string name="history_empty">履歴はまだありません</string>
+    <string name="history_no_match">一致する履歴はありません</string>
+    <string name="delete_history_description">%1$sを履歴から削除</string>
     <string name="lock_icon">🔒</string>
 </resources>
