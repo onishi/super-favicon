@@ -41,6 +41,16 @@ xcodebuild -project SuperFaviconBrowser.xcodeproj \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
+Xcode 27.1（iOS 27.1 SDK）でビルド・動作確認している。ベータ版など別の Xcode を使う場合は `xcode-select` を切り替えずに `DEVELOPER_DIR` で指定できる:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode_27.1_beta.app/Contents/Developer xcodebuild ...
+```
+
+## iPhone Duo
+
+iPhone Duo（iOS 27.1 シミュレータ）で動作確認済み。Duo の外側ディスプレイはステータスバーが画面右端の列に出るため、横方向にも safe area がある。タブバー背景・アドレスバーの区切り線・WebView は safe area まで伸ばして画面端に余白が残らないようにし、ページの内容は WKWebView が safe area を避けて配置する。ヒンジ（`UIHingeInteraction`）に連動したレイアウト切り替えは行っていない。
+
 ## 構成ファイル
 
 - `project.yml` — XcodeGen 定義（ターゲット・Info.plist の内容もここで管理）

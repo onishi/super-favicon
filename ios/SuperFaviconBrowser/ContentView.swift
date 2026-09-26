@@ -10,8 +10,11 @@ struct ContentView: View {
                 .frame(maxHeight: .infinity)
             tabBar
             toolbar
+            // 横・下の safe area（iPhone Duo の側面ステータスバー列やホームインジケータ）まで
+            // WebView を広げる。コンテンツの逃がしは WKWebView 自身が safe area を見て行う
             WebView(webView: model.webView)
                 .frame(maxHeight: .infinity)
+                .ignoresSafeArea(.container, edges: [.horizontal, .bottom])
         }
         .background(Theme.bg)
         .onChange(of: urlFieldFocused) { _, focused in
@@ -110,7 +113,9 @@ struct ContentView: View {
         .padding(.horizontal, 12)
         .background(Theme.bg)
         .overlay(alignment: .bottom) {
+            // タブバーの背景と同じく横の safe area まで区切り線を伸ばす
             Theme.border.frame(height: 1)
+                .ignoresSafeArea(.container, edges: .horizontal)
         }
     }
 
