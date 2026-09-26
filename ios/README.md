@@ -54,7 +54,7 @@ iPhone Duo（iOS 27.1 シミュレータ）で動作確認済み。Duo の外側
 - 横の safe area の扱いは SwiftUI の環境値 `toolbarVerticalEdge`（iOS 27.1+）で切り替える。デプロイターゲットが iOS 17 のため `ToolbarVerticalEdgeReader` 経由で読む
 - 縦バーがない場合（iPhone 横持ちのノッチ側など）: タブバー背景・アドレスバーの区切り線・WebView を safe area まで伸ばす
 - 縦バーがある場合: その辺だけは伸ばさず、Safari と同じく縦バーとの境目に区切り線を引く。縦バー自体は背景色のまま、システムのレールとして扱う
-- 縦バーがある場合、ナビゲーションボタンはアドレスバーから縦バーに移す（URL バーは全幅になる）。システムの toolbar に `.axisBehavior(.verticalPreferred)` で置き、上側に戻る・進む・再読み込み（ナビゲーションバーの項目）、下側にホーム（ボトムバーの項目）を並べる
+- 縦バーがある場合、ナビゲーションボタンはアドレスバーから縦バーに移す（URL バーは全幅になる）。システムの toolbar に `.axisBehavior(.verticalPreferred)` で置き、上側に戻る・進むのグループと独立した再読み込み（ナビゲーションバーの項目。`ToolbarSpacer(.fixed)` で分ける）、下側にホーム（ボトムバーの項目）を並べる
   - ボトムバーの項目は `ToolbarSpacer` を挟んでも縦バーの下側に寄るため、上側のグループはナビゲーションバーの項目にしている
   - ナビゲーションバーは横方向には何も描かないが、上に safe area を確保するため、favicon 領域だけ上の safe area まで広げている
 - ヒンジ（`UIHingeInteraction`）に連動したレイアウト切り替えは行っていない

@@ -200,7 +200,7 @@ private struct BrowserView: View {
 }
 
 /// iPhone Duo の縦バーにナビゲーションボタンを置く。
-/// 上側に戻る・進む・再読み込み、下側にホームを並べる（Safari の縦バーと同じ上下の分け方）
+/// 上側に戻る・進むのグループと再読み込み、下側にホームを並べる（Safari の縦バーと同じ上下の分け方）
 private struct VerticalBarToolbar: ViewModifier {
     @ObservedObject var model: BrowserViewModel
     let isEnabled: Bool
@@ -218,6 +218,13 @@ private struct VerticalBarToolbar: ViewModifier {
                             model.goForward()
                         }
                         .disabled(!model.canGoForward)
+                    }
+                    .axisBehavior(.verticalPreferred)
+
+                    // 再読み込みは戻る・進むとは別のボタンとして分ける
+                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button("再読み込み", systemImage: "arrow.clockwise") {
                             model.reload()
                         }
