@@ -3,7 +3,10 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         ToolbarVerticalEdgeReader { edge in
-            BrowserView(toolbarVerticalEdge: edge)
+            // 縦バーにナビゲーションボタンを置くにはシステムの toolbar が必要なため NavigationStack で包む
+            NavigationStack {
+                BrowserView(toolbarVerticalEdge: edge)
+            }
         }
     }
 }
@@ -19,6 +22,9 @@ private struct BrowserView: View {
         VStack(spacing: 0) {
             faviconArea
                 .frame(maxHeight: .infinity)
+                // 縦バーのボタンを置くためのナビゲーションバーは横方向には何も描かないが、
+                // 上に safe area を確保してしまうので、操作のない favicon 領域だけそこまで広げる
+                .ignoresSafeArea(.container, edges: showsVerticalBar ? .top : [])
             tabBar
             toolbar
             // 横・下の safe area（横持ちのノッチ側やホームインジケータ）まで WebView を広げる。
@@ -35,9 +41,17 @@ private struct BrowserView: View {
             }
         }
         .background(Theme.bg)
+        .modifier(VerticalBarToolbar(model: model, isEnabled: showsVerticalBar))
+        // 縦バーがないときは従来どおり自前のアドレスバーだけを使い、ナビゲーションバーは出さない
+        .toolbar(showsVerticalBar ? .automatic : .hidden, for: .navigationBar)
         .onChange(of: urlFieldFocused) { _, focused in
             model.isEditingURL = focused
         }
+    }
+
+    /// ナビゲーションボタンをアドレスバーではなく縦バーに置くか
+    private var showsVerticalBar: Bool {
+        toolbarVerticalEdge != nil
     }
 
     /// バー背景や WebView を横の safe area まで伸ばす辺。
@@ -103,10 +117,10 @@ private struct BrowserView: View {
     }
 
     /// Web版 BrowserChrome のアドレスバー: ナビゲーションボタン + ピル型の URL 表示（編集可能）。
-    /// URL 編集中はボタンを畳んでピルを全幅に広げる
+    /// URL 編集中や、ボタンを縦バーに置いているときはボタンを畳んでピルを全幅に広げる
     private var toolbar: some View {
         HStack(spacing: 6) {
-            if !urlFieldFocused {
+            if !urlFieldFocused && !showsVerticalBar {
                 toolbarButton("house", label: "ホームへ戻る") {
                     model.goHome()
                 }
@@ -130,7 +144,7 @@ private struct BrowserView: View {
                 toolbarButton("xmark", label: "入力をキャンセル") {
                     urlFieldFocused = false
                 }
-            } else {
+            } else if !showsVerticalBar {
                 toolbarButton("arrow.clockwise", label: "再読み込み") {
                     model.reload()
                 }
@@ -182,6 +196,45 @@ private struct BrowserView: View {
                 .frame(width: 28, height: 28)
         }
         .accessibilityLabel(label)
+    }
+}
+
+/// iPhone Duo の縦バーにナビゲーションボタンを置く。
+/// 上側に戻る・進む・再読み込み、下側にホームを並べる（Safari の縦バーと同じ上下の分け方）
+private struct VerticalBarToolbar: ViewModifier {
+    @ObservedObject var model: BrowserViewModel
+    let isEnabled: Bool
+
+    func body(content: Content) -> some View {
+        if #available(iOS 27.1, *) {
+            content.toolbar {
+                if isEnabled {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        Button("戻る", systemImage: "chevron.backward") {
+                            model.goBack()
+                        }
+                        .disabled(!model.canGoBack)
+                        Button("進む", systemImage: "chevron.forward") {
+                            model.goForward()
+                        }
+                        .disabled(!model.canGoForward)
+                        Button("再読み込み", systemImage: "arrow.clockwise") {
+                            model.reload()
+                        }
+                    }
+                    .axisBehavior(.verticalPreferred)
+
+                    ToolbarItem(placement: .bottomBar) {
+                        Button("ホームへ戻る", systemImage: "house") {
+                            model.goHome()
+                        }
+                    }
+                    .axisBehavior(.verticalPreferred)
+                }
+            }
+        } else {
+            content
+        }
     }
 }
 
