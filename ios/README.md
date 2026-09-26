@@ -49,7 +49,12 @@ DEVELOPER_DIR=/Applications/Xcode_27.1_beta.app/Contents/Developer xcodebuild ..
 
 ## iPhone Duo
 
-iPhone Duo（iOS 27.1 シミュレータ）で動作確認済み。Duo の外側ディスプレイはステータスバーが画面右端の列に出るため、横方向にも safe area がある。タブバー背景・アドレスバーの区切り線・WebView は safe area まで伸ばして画面端に余白が残らないようにし、ページの内容は WKWebView が safe area を避けて配置する。ヒンジ（`UIHingeInteraction`）に連動したレイアウト切り替えは行っていない。
+iPhone Duo（iOS 27.1 シミュレータ）で動作確認済み。Duo の外側ディスプレイでは、システムが画面の片側に縦バー（ステータス表示などの縦の列）を置く。
+
+- 横の safe area の扱いは `UITraitCollection.verticalBarEdge`（iOS 27.1+）で切り替える。SwiftUI には同等の環境値がないため `VerticalBarEdgeReader` で橋渡しする
+- 縦バーがない場合（iPhone 横持ちのノッチ側など）: タブバー背景・アドレスバーの区切り線・WebView を safe area まで伸ばす
+- 縦バーがある場合: その辺だけは伸ばさず、Safari と同じく縦バーとの境目に区切り線を引く。縦バー自体は背景色のまま、システムのレールとして扱う
+- ヒンジ（`UIHingeInteraction`）に連動したレイアウト切り替えや、ナビゲーションボタンの縦バーへの移動は行っていない
 
 ## 構成ファイル
 
@@ -58,6 +63,7 @@ iPhone Duo（iOS 27.1 シミュレータ）で動作確認済み。Duo の外側
 - `SuperFaviconBrowser/ContentView.swift` — 画面レイアウト（上半分 favicon / タイトル / URL / WebView）
 - `SuperFaviconBrowser/BrowserViewModel.swift` — WKWebView の所有、favicon・タイトルのポーリングとデコード
 - `SuperFaviconBrowser/WebView.swift` — WKWebView の SwiftUI ラッパー
+- `SuperFaviconBrowser/VerticalBarEdgeReader.swift` — iPhone Duo の縦バーの位置（`verticalBarEdge`）を SwiftUI に渡すブリッジ
 - `SuperFaviconBrowser/Assets.xcassets` — アプリアイコン（ロゴのドット絵。Android版とアイコン画像を共有している）。ベクター原本は [`assets/AppIcon.svg`](../assets/AppIcon.svg)
 
 ## 制限事項

@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @StateObject private var model = BrowserViewModel()
     @FocusState private var urlFieldFocused: Bool
+    @State private var verticalBarEdge: VerticalBarEdge?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -10,15 +11,35 @@ struct ContentView: View {
                 .frame(maxHeight: .infinity)
             tabBar
             toolbar
-            // 横・下の safe area（iPhone Duo の側面ステータスバー列やホームインジケータ）まで
-            // WebView を広げる。コンテンツの逃がしは WKWebView 自身が safe area を見て行う
+            // 横・下の safe area（横持ちのノッチ側やホームインジケータ）まで WebView を広げる。
+            // コンテンツの逃がしは WKWebView 自身が safe area を見て行う
             WebView(webView: model.webView)
                 .frame(maxHeight: .infinity)
-                .ignoresSafeArea(.container, edges: [.horizontal, .bottom])
+                .ignoresSafeArea(.container, edges: bleedEdges.union(.bottom))
+        }
+        .overlay(alignment: verticalBarEdge == .leading ? .leading : .trailing) {
+            // Safari と同じく、縦バーとの境目に区切り線を引く
+            if verticalBarEdge != nil {
+                Theme.border.frame(width: 1)
+                    .ignoresSafeArea(.container, edges: .vertical)
+            }
         }
         .background(Theme.bg)
+        .background {
+            VerticalBarEdgeReader(edge: $verticalBarEdge)
+        }
         .onChange(of: urlFieldFocused) { _, focused in
             model.isEditingURL = focused
+        }
+    }
+
+    /// バー背景や WebView を横の safe area まで伸ばす辺。
+    /// iPhone Duo の縦バーはシステムのレールとして扱い、その辺だけは伸ばさない
+    private var bleedEdges: Edge.Set {
+        switch verticalBarEdge {
+        case .leading: .trailing
+        case .trailing: .leading
+        case nil: .horizontal
         }
     }
 
@@ -50,7 +71,7 @@ struct ContentView: View {
         }
         .padding(.top, 10)
         .padding(.horizontal, 12)
-        .background(Theme.codeBg)
+        .background(Theme.codeBg, ignoresSafeAreaEdges: bleedEdges.union(.vertical))
     }
 
     private var tab: some View {
@@ -115,7 +136,7 @@ struct ContentView: View {
         .overlay(alignment: .bottom) {
             // タブバーの背景と同じく横の safe area まで区切り線を伸ばす
             Theme.border.frame(height: 1)
-                .ignoresSafeArea(.container, edges: .horizontal)
+                .ignoresSafeArea(.container, edges: bleedEdges)
         }
     }
 
