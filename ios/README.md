@@ -41,6 +41,24 @@ xcodebuild -project SuperFaviconBrowser.xcodeproj \
   CODE_SIGNING_ALLOWED=NO build
 ```
 
+Xcode 27.1（iOS 27.1 SDK）でビルド・動作確認している。ベータ版など別の Xcode を使う場合は `xcode-select` を切り替えずに `DEVELOPER_DIR` で指定できる:
+
+```sh
+DEVELOPER_DIR=/Applications/Xcode_27.1_beta.app/Contents/Developer xcodebuild ...
+```
+
+## iPhone Duo
+
+iPhone Duo（iOS 27.1 シミュレータ）で動作確認済み。Duo の外側ディスプレイでは、システムが画面の片側に縦バー（ステータス表示などの縦の列）を置く。
+
+- 横の safe area の扱いは SwiftUI の環境値 `toolbarVerticalEdge`（iOS 27.1+）で切り替える。デプロイターゲットが iOS 17 のため `ToolbarVerticalEdgeReader` 経由で読む
+- 縦バーがない場合（iPhone 横持ちのノッチ側など）: タブバー背景・アドレスバーの区切り線・WebView を safe area まで伸ばす
+- 縦バーがある場合: その辺だけは伸ばさず、Safari と同じく縦バーとの境目に区切り線を引く。縦バー自体は背景色のまま、システムのレールとして扱う
+- 縦バーがある場合、ナビゲーションボタンはアドレスバーから縦バーに移す（URL バーは全幅になる）。システムの toolbar に `.axisBehavior(.verticalPreferred)` で置き、上側に戻る・進むのグループと独立した再読み込み（ナビゲーションバーの項目。`ToolbarSpacer(.fixed)` で分ける）、下側にホーム（ボトムバーの項目）を並べる
+  - ボトムバーの項目は `ToolbarSpacer` を挟んでも縦バーの下側に寄るため、上側のグループはナビゲーションバーの項目にしている
+  - ナビゲーションバーは横方向には何も描かないが、上に safe area を確保するため、favicon 領域だけ上の safe area まで広げている
+- ヒンジ（`UIHingeInteraction`）に連動したレイアウト切り替えは行っていない
+
 ## 構成ファイル
 
 - `project.yml` — XcodeGen 定義（ターゲット・Info.plist の内容もここで管理）
@@ -48,6 +66,7 @@ xcodebuild -project SuperFaviconBrowser.xcodeproj \
 - `SuperFaviconBrowser/ContentView.swift` — 画面レイアウト（上半分 favicon / タイトル / URL / WebView）
 - `SuperFaviconBrowser/BrowserViewModel.swift` — WKWebView の所有、favicon・タイトルのポーリングとデコード
 - `SuperFaviconBrowser/WebView.swift` — WKWebView の SwiftUI ラッパー
+- `SuperFaviconBrowser/ToolbarVerticalEdgeReader.swift` — iPhone Duo の縦バーの位置（環境値 `toolbarVerticalEdge`）を iOS 27.1 未満でも安全に読むラッパー
 - `SuperFaviconBrowser/Assets.xcassets` — アプリアイコン（ロゴのドット絵。Android版とアイコン画像を共有している）。ベクター原本は [`assets/AppIcon.svg`](../assets/AppIcon.svg)
 
 ## 制限事項
