@@ -1,9 +1,19 @@
 import SwiftUI
 
 struct ContentView: View {
+    var body: some View {
+        ToolbarVerticalEdgeReader { edge in
+            BrowserView(toolbarVerticalEdge: edge)
+        }
+    }
+}
+
+private struct BrowserView: View {
+    /// iPhone Duo などでシステムが縦バー（ステータス表示などの縦の列）を置く辺。縦バーがなければ nil
+    let toolbarVerticalEdge: HorizontalEdge?
+
     @StateObject private var model = BrowserViewModel()
     @FocusState private var urlFieldFocused: Bool
-    @State private var verticalBarEdge: VerticalBarEdge?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -17,17 +27,14 @@ struct ContentView: View {
                 .frame(maxHeight: .infinity)
                 .ignoresSafeArea(.container, edges: bleedEdges.union(.bottom))
         }
-        .overlay(alignment: verticalBarEdge == .leading ? .leading : .trailing) {
+        .overlay(alignment: toolbarVerticalEdge == .leading ? .leading : .trailing) {
             // Safari と同じく、縦バーとの境目に区切り線を引く
-            if verticalBarEdge != nil {
+            if toolbarVerticalEdge != nil {
                 Theme.border.frame(width: 1)
                     .ignoresSafeArea(.container, edges: .vertical)
             }
         }
         .background(Theme.bg)
-        .background {
-            VerticalBarEdgeReader(edge: $verticalBarEdge)
-        }
         .onChange(of: urlFieldFocused) { _, focused in
             model.isEditingURL = focused
         }
@@ -36,7 +43,7 @@ struct ContentView: View {
     /// バー背景や WebView を横の safe area まで伸ばす辺。
     /// iPhone Duo の縦バーはシステムのレールとして扱い、その辺だけは伸ばさない
     private var bleedEdges: Edge.Set {
-        switch verticalBarEdge {
+        switch toolbarVerticalEdge {
         case .leading: .trailing
         case .trailing: .leading
         case nil: .horizontal
