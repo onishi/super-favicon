@@ -1,6 +1,20 @@
 import SwiftUI
 
 struct ContentView: View {
+    var body: some View {
+        ToolbarVerticalEdgeReader { edge in
+            // 縦バーにナビゲーションボタンを置くにはシステムの toolbar が必要なため NavigationStack で包む
+            NavigationStack {
+                BrowserView(toolbarVerticalEdge: edge)
+            }
+        }
+    }
+}
+
+private struct BrowserView: View {
+    /// iPhone Duo などでシステムが縦バー（ステータス表示などの縦の列）を置く辺。縦バーがなければ nil
+    let toolbarVerticalEdge: HorizontalEdge?
+
     @StateObject private var model = BrowserViewModel()
     @FocusState private var urlFieldFocused: Bool
 
@@ -8,14 +22,45 @@ struct ContentView: View {
         VStack(spacing: 0) {
             faviconArea
                 .frame(maxHeight: .infinity)
+                // 縦バーのボタンを置くためのナビゲーションバーは横方向には何も描かないが、
+                // 上に safe area を確保してしまうので、操作のない favicon 領域だけそこまで広げる
+                .ignoresSafeArea(.container, edges: showsVerticalBar ? .top : [])
             tabBar
             toolbar
+            // 横・下の safe area（横持ちのノッチ側やホームインジケータ）まで WebView を広げる。
+            // コンテンツの逃がしは WKWebView 自身が safe area を見て行う
             WebView(webView: model.webView)
                 .frame(maxHeight: .infinity)
+                .ignoresSafeArea(.container, edges: bleedEdges.union(.bottom))
+        }
+        .overlay(alignment: toolbarVerticalEdge == .leading ? .leading : .trailing) {
+            // Safari と同じく、縦バーとの境目に区切り線を引く
+            if toolbarVerticalEdge != nil {
+                Theme.border.frame(width: 1)
+                    .ignoresSafeArea(.container, edges: .vertical)
+            }
         }
         .background(Theme.bg)
+        .modifier(VerticalBarToolbar(model: model, isEnabled: showsVerticalBar))
+        // 縦バーがないときは従来どおり自前のアドレスバーだけを使い、ナビゲーションバーは出さない
+        .toolbar(showsVerticalBar ? .automatic : .hidden, for: .navigationBar)
         .onChange(of: urlFieldFocused) { _, focused in
             model.isEditingURL = focused
+        }
+    }
+
+    /// ナビゲーションボタンをアドレスバーではなく縦バーに置くか
+    private var showsVerticalBar: Bool {
+        toolbarVerticalEdge != nil
+    }
+
+    /// バー背景や WebView を横の safe area まで伸ばす辺。
+    /// iPhone Duo の縦バーはシステムのレールとして扱い、その辺だけは伸ばさない
+    private var bleedEdges: Edge.Set {
+        switch toolbarVerticalEdge {
+        case .leading: .trailing
+        case .trailing: .leading
+        case nil: .horizontal
         }
     }
 
@@ -47,7 +92,7 @@ struct ContentView: View {
         }
         .padding(.top, 10)
         .padding(.horizontal, 12)
-        .background(Theme.codeBg)
+        .background(Theme.codeBg, ignoresSafeAreaEdges: bleedEdges.union(.vertical))
     }
 
     private var tab: some View {
@@ -72,10 +117,10 @@ struct ContentView: View {
     }
 
     /// Web版 BrowserChrome のアドレスバー: ナビゲーションボタン + ピル型の URL 表示（編集可能）。
-    /// URL 編集中はボタンを畳んでピルを全幅に広げる
+    /// URL 編集中や、ボタンを縦バーに置いているときはボタンを畳んでピルを全幅に広げる
     private var toolbar: some View {
         HStack(spacing: 6) {
-            if !urlFieldFocused {
+            if !urlFieldFocused && !showsVerticalBar {
                 toolbarButton("house", label: "ホームへ戻る") {
                     model.goHome()
                 }
@@ -99,7 +144,7 @@ struct ContentView: View {
                 toolbarButton("xmark", label: "入力をキャンセル") {
                     urlFieldFocused = false
                 }
-            } else {
+            } else if !showsVerticalBar {
                 toolbarButton("arrow.clockwise", label: "再読み込み") {
                     model.reload()
                 }
@@ -110,7 +155,9 @@ struct ContentView: View {
         .padding(.horizontal, 12)
         .background(Theme.bg)
         .overlay(alignment: .bottom) {
+            // タブバーの背景と同じく横の safe area まで区切り線を伸ばす
             Theme.border.frame(height: 1)
+                .ignoresSafeArea(.container, edges: bleedEdges)
         }
     }
 
@@ -149,6 +196,52 @@ struct ContentView: View {
                 .frame(width: 28, height: 28)
         }
         .accessibilityLabel(label)
+    }
+}
+
+/// iPhone Duo の縦バーにナビゲーションボタンを置く。
+/// 上側に戻る・進むのグループと再読み込み、下側にホームを並べる（Safari の縦バーと同じ上下の分け方）
+private struct VerticalBarToolbar: ViewModifier {
+    @ObservedObject var model: BrowserViewModel
+    let isEnabled: Bool
+
+    func body(content: Content) -> some View {
+        if #available(iOS 27.1, *) {
+            content.toolbar {
+                if isEnabled {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
+                        Button("戻る", systemImage: "chevron.backward") {
+                            model.goBack()
+                        }
+                        .disabled(!model.canGoBack)
+                        Button("進む", systemImage: "chevron.forward") {
+                            model.goForward()
+                        }
+                        .disabled(!model.canGoForward)
+                    }
+                    .axisBehavior(.verticalPreferred)
+
+                    // 再読み込みは戻る・進むとは別のボタンとして分ける
+                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("再読み込み", systemImage: "arrow.clockwise") {
+                            model.reload()
+                        }
+                    }
+                    .axisBehavior(.verticalPreferred)
+
+                    ToolbarItem(placement: .bottomBar) {
+                        Button("ホームへ戻る", systemImage: "house") {
+                            model.goHome()
+                        }
+                    }
+                    .axisBehavior(.verticalPreferred)
+                }
+            }
+        } else {
+            content
+        }
     }
 }
 
