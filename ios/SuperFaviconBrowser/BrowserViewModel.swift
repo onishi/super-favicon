@@ -75,6 +75,7 @@ final class BrowserViewModel: NSObject, ObservableObject {
         super.init()
         webView.allowsBackForwardNavigationGestures = true
         webView.navigationDelegate = self
+        webView.uiDelegate = self
         refreshControl.addTarget(self, action: #selector(reloadForRefresh), for: .valueChanged)
         webView.scrollView.refreshControl = refreshControl
         webView.load(URLRequest(url: Self.homeURL))
@@ -197,6 +198,22 @@ final class BrowserViewModel: NSObject, ObservableObject {
         guard meta.contains(";base64") else { return nil }
         guard let data = Data(base64Encoded: String(href[href.index(after: comma)...])) else { return nil }
         return UIImage(data: data)
+    }
+}
+
+extension BrowserViewModel: WKUIDelegate {
+    /// target="_blank" のリンクや window.open は新しいウィンドウを要求してくるが、
+    /// このアプリはタブを1枚しか持たないため、同じ WebView で開く（Android 版と同じ挙動）
+    func webView(
+        _ webView: WKWebView,
+        createWebViewWith configuration: WKWebViewConfiguration,
+        for navigationAction: WKNavigationAction,
+        windowFeatures: WKWindowFeatures
+    ) -> WKWebView? {
+        if navigationAction.targetFrame == nil {
+            webView.load(navigationAction.request)
+        }
+        return nil
     }
 }
 
